@@ -1,5 +1,5 @@
 // dllist.h 
-//	Data structures of ordered doubly linked list.  
+//	Data structures of doubly linked list.  
 //
 // Copyright (c) 2020 Marx Young. All rights reserved.
 

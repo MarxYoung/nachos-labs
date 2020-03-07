@@ -1,10 +1,8 @@
 // dllist.cc 
-//     	Routines to manage a doubly-linked list of integers. 
+//  Routines to manage a doubly-linked list. 
 //
 // 	A "DLLElement" is allocated for each item to be put on the
-//	list; it is de-allocated when the item is removed. This means
-//      we don't need to keep a "next" pointer in every object we
-//      want to put on a list.
+//	list; it is de-allocated when the item is removed.
 // 
 // Copyright (c) 2020 Marx Young. All rights reserved.
 
@@ -22,24 +20,21 @@ const int NULL = 0;
 
 
 // The following class defines a "list element" -- which is
-// used to keep track of one item on a list.  It is equivalent to a
-// LISP cell, with a "car" ("next") pointing to the next element on the list,
-// and a "cdr" ("item") containing the item on the list.
+// used to keep track of one item on a list.
 //
-// Class defined in dllist.cc, because only the DLList class can be allocating
-// and accessing DLLElements.
+// Class defined in dllist.cc, because only the DLList class 
+// can be allocating and accessing DLLElements.
 
 class DLLElement {
 public:
   DLLElement( void *itemPtr, int sortKey); // initialize a list element
 
   DLLElement *next; // next element on list
-
                     // NULL if this is the last
   DLLElement *prev; // previous element on list
                     // NULL if this is the first
-  int key; // priority, for a sorted list
-  void *item; // pointer to item on the list
+  int key;          // priority, for a sorted list
+  void *item;       // pointer to item on the list
 };
 
 //----------------------------------------------------------------------
@@ -47,7 +42,8 @@ public:
 //	Initialize an element.
 //----------------------------------------------------------------------
 
-DLLElement::DLLElement(void *itemPtr, int sortKey) {
+DLLElement::DLLElement(void *itemPtr, int sortKey) 
+{
     next = prev = NULL;
     item = itemPtr;
     key = sortKey;
@@ -59,8 +55,8 @@ DLLElement::DLLElement(void *itemPtr, int sortKey) {
 //	Elements can now be added to the list.
 //----------------------------------------------------------------------
 
-DLList::DLList() { 
-
+DLList::DLList() 
+{ 
     first = last = NULL; 
 }
 
@@ -71,26 +67,26 @@ DLList::DLList() {
 //	DLLElements, de-allocate them.
 //----------------------------------------------------------------------
 
-DLList::~DLList() { 
-   
+DLList::~DLList() 
+{ 
     while (!IsEmpty())
-	(void) Remove(NULL);	 // delete all the list elements
+	    Remove(NULL);	 // delete all the list elements
 }
 
 
 //----------------------------------------------------------------------
 // DLList::Prepend
-//      Put item at the the head of the list.
+//  Put item at the the head of the list.
 //      
-//	Allocate a DLLElement to keep track of the integer.
-//      If the list is empty, then this will be the only element.
-//	Otherwise, put it at correct position to keep ascending order.
+//	Allocate a DLLElement to keep track of the item.
+//  If the list is empty, then this will be the only element.
 //
-//	"value" is the integer to be put on the list.
+//	"value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
 void
-DLList::Prepend(void *value) {
+DLList::Prepend(void *value) 
+{
     if (IsEmpty()) {		// list is empty, set key = 0
         DLLElement *element = new DLLElement(value, 0);
         first = element;
@@ -106,17 +102,17 @@ DLList::Prepend(void *value) {
 
 //----------------------------------------------------------------------
 // DLList::Append
-//      Put item at the the head of the list.
+//   Put item at the the end of the list.
 //      
-//	Allocate a DLLElement to keep track of the integer.
-//      If the list is empty, then this will be the only element.
-//	Otherwise, put it at correct position to keep ascending order.
+//	Allocate a DLLElement to keep track of the item.
+//  If the list is empty, then this will be the only element.
 //
-//	"value" is the integer to be put on the list.
+//	"value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
 void
-DLList::Append(void *value) {
+DLList::Append(void *value) 
+{
     if (IsEmpty()) {		// list is empty, set key = 0
         DLLElement *element = new DLLElement(value, 0);
         first = element;
@@ -132,15 +128,16 @@ DLList::Append(void *value) {
 
 //----------------------------------------------------------------------
 // DLList::Remove
-// remove from head of list
-// set *keyPtr to key of the removed item
+//  Remove an item from head of list.
+//  Set *keyPtr to key of the removed item.
 // 
 // Returns:
 //	item (or NULL if list is empty)
 //----------------------------------------------------------------------
 
 void *
-DLList::Remove(int *keyPtr) {
+DLList::Remove(int *keyPtr) 
+{
     if (IsEmpty())
         return NULL;
 
@@ -160,7 +157,8 @@ DLList::Remove(int *keyPtr) {
 //----------------------------------------------------------------------
 
 bool
-DLList::IsEmpty() { 
+DLList::IsEmpty() 
+{ 
     return (first == NULL);
 }
 
@@ -170,7 +168,8 @@ DLList::IsEmpty() {
 //----------------------------------------------------------------------
 
 void 
-DLList::SortedInsert(void *item, int sortKey) {
+DLList::SortedInsert(void *item, int sortKey) 
+{
     DLLElement *element = new DLLElement(item, sortKey);
 
     if (IsEmpty()) {		// list is empty
@@ -190,7 +189,7 @@ DLList::SortedInsert(void *item, int sortKey) {
         } else {        // neither the first nor the last
             DLLElement *e = first->next;
             while (element->key > e->key)     // at the end of the loop e will point to
-                e = e->next;                    // the element after where it should be
+                e = e->next;                  // the element after where it should be
             e->prev->next = element;
             element->prev = e->prev;
             element->next = e;
@@ -201,21 +200,21 @@ DLList::SortedInsert(void *item, int sortKey) {
 
 //----------------------------------------------------------------------
 // DLList::SortedRemove
-// remove first item with key==sortKey
-// return NULL if no such item exists
+//  Remove first item with key==sortKey.
+// Returns:
+//	item (or NULL if no such item exists)
 //----------------------------------------------------------------------
 
 void *
-DLList::SortedRemove(int sortKey) {
+DLList::SortedRemove(int sortKey) 
+{
     if (IsEmpty()) 
         return NULL;
     
     DLLElement *element = first;
     while(element && sortKey < element->key)
         element = element->next;
-    if (element && sortKey == element->key) {
-        void *item = element->item;
-        return item;
-    }
+    if (element && sortKey == element->key)
+        return element->item;
     return NULL;
 }
