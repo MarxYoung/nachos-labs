@@ -1,13 +1,7 @@
 // dllist-dirver.cc 
-//	Simple test case for concurrent errors of doubly-linked list.
+//  Provide 2 functions to help operate doubly-linked list.
 //
-//  TypeⅠ error:
-//	Create two threads, and have them context switch
-//	back and forth between themselves by calling Thread::Yield, 
-//	to illustratethe inner workings of the thread system.
-//  TypeⅡ error:
-//  It's the same as the first, except for the timing of
-//  context switch.
+//  You can specify the list and the number of items.
 // 
 // Copyright (c) 2020 Marx Young. All rights reserved.
 
@@ -16,8 +10,8 @@
 
 //----------------------------------------------------------------------
 // GenerateN
-// 	generates N items with random keys and inserts them into a 
-//  doubly-linked list
+// 	Generates N items with random keys and inserts them into a 
+//  doubly-linked list.
 //----------------------------------------------------------------------
 
 void 
@@ -33,8 +27,8 @@ GenerateN(int N, DLList *list) {
 
 //----------------------------------------------------------------------
 // RemoveN
-// 	removes N items starting from the head of the list and 
-//  prints out the removeditems to the console
+// 	Remove N items starting from the head of the list  
+//  and prints out the removed items to the console.
 //----------------------------------------------------------------------
 
 void 
