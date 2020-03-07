@@ -98,6 +98,7 @@ main(int argc, char **argv)
 		if (testnum == 2) {
 			T = atoi(argv[2]);
 			N = atoi(argv[3]);
+			RandomInit(unsigned(T * T + N * N));	// initialize pseudo-random
 			argCount += 2;
 		}
         argCount++;
