@@ -18,6 +18,8 @@ extern void RemoveN(int N, DLList *list);
 
 // testnum is set in main.cc
 int testnum = 1;
+int N;
+DLList *list = new DLList();
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -38,6 +40,27 @@ SimpleThread(int which)
         currentThread->Yield();
     }
 }
+
+
+//----------------------------------------------------------------------
+// ConcurrentError1
+// 	insert N items -- switch threads -- remove N items -- switch threads
+//----------------------------------------------------------------------
+
+void
+ConcurrentError1(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+    currentThread->Yield();
+}
+
+const int error_num = 1;    // total number of concurrent errors
+typedef void (*func) (int);
+func ConcurrentErrors[error_num] = {ConcurrentError1};
 
 //----------------------------------------------------------------------
 // ThreadTest1
@@ -62,19 +85,23 @@ ThreadTest1()
 //----------------------------------------------------------------------
 
 void
-ThreadTest2(int T, int N)
+ThreadTest2(int T, int E)
 {
     DEBUG('t', "Entering ThreadTest2");
 
-    Thread *t = new Thread("forked thread");
+    // problem with parameter E
+    if (E >= error_num) {
+        printf("No concurrent error specified.\n");
+        return;
+    }
 
-    //t->Fork(SimpleThread, 1);
-    //SimpleThread(0);
-
-    DLList *list = new DLList();
-
-    GenerateN(N, list);
-    RemoveN(N, list);
+    int i;
+    
+    for (i = 1; i < T; i++) {
+        Thread *t = new Thread("forked thread");
+        t->Fork(ConcurrentErrors[E], i);
+    }
+    ConcurrentErrors[E](0);
 }
 
 //----------------------------------------------------------------------
@@ -83,14 +110,15 @@ ThreadTest2(int T, int N)
 //----------------------------------------------------------------------
 
 void
-ThreadTest(int T, int N)
+ThreadTest(int T, int n, int E)
 {
     switch (testnum) {
     case 1:
 	ThreadTest1();
 	break;
     case 2:
-    ThreadTest2(T, N);
+    N = n;
+    ThreadTest2(T, E);
     break;
     default:
 	printf("No test specified.\n");

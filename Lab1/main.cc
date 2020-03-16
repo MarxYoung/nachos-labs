@@ -59,7 +59,7 @@ extern int testnum;
 
 // External functions used by this file
 
-extern void ThreadTest(int T, int N), Copy(char *unixFile, char *nachosFile);
+extern void ThreadTest(int T, int N, int E), Copy(char *unixFile, char *nachosFile);
 extern void Print(char *file), PerformanceTest(void);
 extern void StartProcess(char *file), ConsoleTest(char *in, char *out);
 extern void MailTest(int networkID);
@@ -88,18 +88,24 @@ main(int argc, char **argv)
     (void) Initialize(argc, argv);
     
 #ifdef THREADS
-	int T = 0;
-	int N = 0;
+	int T = 0;	// number of threads
+	int N = 0;	// number of items
+	int E = 0;	// type of concurrent errors
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
       argCount = 1;
       switch (argv[0][1]) {
       case 'q':
         testnum = atoi(argv[1]);
 		if (testnum == 2) {
+			if (argc < 5) {
+				printf("too few parameters\n");
+				break;
+			}
 			T = atoi(argv[2]);
 			N = atoi(argv[3]);
+			E = atoi(argv[4]);
 			RandomInit(unsigned(T * T + N * N));	// initialize pseudo-random
-			argCount += 2;
+			argCount += 3;
 		}
         argCount++;
         break;
@@ -109,7 +115,7 @@ main(int argc, char **argv)
       }
     }
 
-    ThreadTest(T, N);
+    ThreadTest(T, N, E);
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount) {
