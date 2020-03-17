@@ -149,6 +149,8 @@ DLList::Remove(int *keyPtr)
 {
     if (IsEmpty())
         return NULL;
+    if (err_type == 5)
+        currentThread->Yield();
 
     DLLElement *element = first;
     if (err_type == 4)
