@@ -18,7 +18,7 @@ extern void RemoveN(int N, DLList *list);
 
 // testnum is set in main.cc
 int testnum = 1;
-int N;
+int T, N, E;
 DLList *list = new DLList();
 
 //----------------------------------------------------------------------
@@ -58,6 +58,22 @@ ConcurrentError1(int which)
     currentThread->Yield();
 }
 
+//----------------------------------------------------------------------
+// ConcurrentError2
+// 	insert an item -- switch threads -- remove an items -- switch threads
+//----------------------------------------------------------------------
+
+void
+ConcurrentError2(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+    currentThread->Yield();
+}
+
 const int error_num = 1;    // total number of concurrent errors
 typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1};
@@ -85,7 +101,7 @@ ThreadTest1()
 //----------------------------------------------------------------------
 
 void
-ThreadTest2(int T, int E)
+ThreadTest2()
 {
     DEBUG('t', "Entering ThreadTest2");
 
@@ -110,15 +126,17 @@ ThreadTest2(int T, int E)
 //----------------------------------------------------------------------
 
 void
-ThreadTest(int T, int n, int E)
+ThreadTest(int t, int n, int e)
 {
     switch (testnum) {
     case 1:
 	ThreadTest1();
 	break;
     case 2:
+    T = t;
     N = n;
-    ThreadTest2(T, E);
+    E = e;
+    ThreadTest2();
     break;
     default:
 	printf("No test specified.\n");
