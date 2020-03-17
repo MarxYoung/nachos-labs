@@ -124,7 +124,7 @@ ThreadTest2()
     DEBUG('t', "Entering ThreadTest2");
 
     // problem with parameter E
-    if (E >= error_num) {
+    if (E > error_num) {
         printf("No concurrent error specified.\n");
         return;
     }
@@ -134,9 +134,9 @@ ThreadTest2()
     
     for (i = 1; i < T; i++) {
         Thread *t = new Thread("forked thread");
-        t->Fork(ConcurrentErrors[E], i);
+        t->Fork(ConcurrentErrors[E - 1], i);
     }
-    ConcurrentErrors[E](0);
+    ConcurrentErrors[E - 1](0);
 }
 
 //----------------------------------------------------------------------

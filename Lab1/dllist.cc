@@ -181,10 +181,10 @@ void DLList::SortedInsert(void *item, int sortKey)
 
     if (IsEmpty())
     { // list is empty
-        if (err_type == 1)
+        if (err_type == 2)
             currentThread->Yield();
         first = element;
-        if (err_type == 2)
+        if (err_type == 3)
             currentThread->Yield();
         last = element;
     }
