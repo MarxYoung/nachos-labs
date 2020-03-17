@@ -13,6 +13,7 @@ class DLLElement;
 class DLList {
 public:
   DLList(); // initialize the list
+  DLList(int err_type); 
   ~DLList(); // de-allocate the list
 
   void Prepend(void *item); // add to head of list (set key = min_key-1)
@@ -31,6 +32,7 @@ public:
 private:
   DLLElement *first; // head of the list, NULL if empty
   DLLElement *last; // last element of the list, NULL if empty
+  int err_type;   // type of concurrent errors
 };
 
 #endif // DLLIST_H

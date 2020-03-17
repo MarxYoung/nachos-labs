@@ -7,16 +7,17 @@
 // Copyright (c) 2020 Marx Young. All rights reserved.
 
 
-extern "C" {
-#include <assert.h>
+// extern "C" {
+// #include <assert.h>
 
-#define ASSERT(expression)  assert(expression)
-}
+// #define ASSERT(expression)  assert(expression)
+// }
 
 #include "copyright.h"
 #include "dllist.h"
+#include "system.h"
 
-const int NULL = 0;
+//const int NULL = 0;
 
 
 // The following class defines a "list element" -- which is
@@ -58,6 +59,13 @@ DLLElement::DLLElement(void *itemPtr, int sortKey)
 DLList::DLList() 
 { 
     first = last = NULL; 
+    err_type = -1;
+}
+
+DLList::DLList(int err_type)
+{
+    first = last = NULL;
+    this->err_type = err_type;
 }
 
 
@@ -174,6 +182,8 @@ DLList::SortedInsert(void *item, int sortKey)
 
     if (IsEmpty()) {		// list is empty
         first = element;
+        if (err_type == 1)
+            currentThread->Yield();
         last = element;
     } else {			// else put it at the correct position
         if (sortKey <= first->key) {      // new key is the smallest of all

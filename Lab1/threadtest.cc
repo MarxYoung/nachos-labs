@@ -19,7 +19,7 @@ extern void RemoveN(int N, DLList *list);
 // testnum is set in main.cc
 int testnum = 1;
 int T, N, E;
-DLList *list = new DLList();
+DLList *list;
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -60,23 +60,25 @@ ConcurrentError1(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError2
-// 	insert an item -- switch threads -- remove an items -- switch threads
+// 	switch threads after setting list->first when inserting an item
+//  into an empty list
 //----------------------------------------------------------------------
 
 void
 ConcurrentError2(int which)
 {
+    int key[] = {1,2};  // 2rd thread's item's key > 1st thread's item's key
+                        // so that a segment fault will occur in
+                        // "else if (sortKey >= last->key)"(DLList::SortedInsert)
+    printf("*** thread %d is going to insert an item with key: %d\n", which, key[which % 2]);
+    list->SortedInsert(NULL, key[which % 2]);
     printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
-    currentThread->Yield();
+    RemoveN(1, list);
 }
 
-const int error_num = 1;    // total number of concurrent errors
+const int error_num = 2;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1};
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2};
 
 //----------------------------------------------------------------------
 // ThreadTest1
@@ -111,6 +113,7 @@ ThreadTest2()
         return;
     }
 
+    list = new DLList(E);
     int i;
     
     for (i = 1; i < T; i++) {
