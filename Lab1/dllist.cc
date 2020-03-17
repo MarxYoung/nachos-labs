@@ -151,6 +151,8 @@ DLList::Remove(int *keyPtr)
         return NULL;
 
     DLLElement *element = first;
+    if (err_type == 4)
+        currentThread->Yield();
     if (keyPtr)
         *keyPtr = element->key;
     void *item = element->item;

@@ -92,9 +92,21 @@ ConcurrentError3(int which)
     RemoveN(1, list);
 }
 
-const int error_num = 3;    // total number of concurrent errors
+//----------------------------------------------------------------------
+// ConcurrentError4
+// 	
+//----------------------------------------------------------------------
+
+void
+ConcurrentError4(int which)
+{
+    ConcurrentError2(which);
+}
+
+const int error_num = 4;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3};
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
+                                    ConcurrentError4};
 
 //----------------------------------------------------------------------
 // ThreadTest1
