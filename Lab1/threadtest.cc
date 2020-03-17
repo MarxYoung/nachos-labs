@@ -60,12 +60,28 @@ ConcurrentError1(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError2
-// 	switch threads after setting list->first when inserting an item
+// 	switch threads before setting list->first when inserting an item
 //  into an empty list
 //----------------------------------------------------------------------
 
 void
 ConcurrentError2(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+}
+
+//----------------------------------------------------------------------
+// ConcurrentError3
+// 	switch threads after setting list->first when inserting an item
+//  into an empty list
+//----------------------------------------------------------------------
+
+void
+ConcurrentError3(int which)
 {
     int key[] = {1,2};  // 2rd thread's item's key > 1st thread's item's key
                         // so that a segment fault will occur in
@@ -76,9 +92,9 @@ ConcurrentError2(int which)
     RemoveN(1, list);
 }
 
-const int error_num = 2;    // total number of concurrent errors
+const int error_num = 3;    // total number of concurrent errors
 typedef void (*func) (int);
-func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2};
+func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3};
 
 //----------------------------------------------------------------------
 // ThreadTest1

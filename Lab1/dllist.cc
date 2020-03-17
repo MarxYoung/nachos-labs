@@ -181,8 +181,10 @@ DLList::SortedInsert(void *item, int sortKey)
     DLLElement *element = new DLLElement(item, sortKey);
 
     if (IsEmpty()) {		// list is empty
-        first = element;
         if (err_type == 1)
+            currentThread->Yield();
+        first = element;
+        if (err_type == 2)
             currentThread->Yield();
         last = element;
     } else {			// else put it at the correct position
