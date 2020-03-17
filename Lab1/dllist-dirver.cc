@@ -36,7 +36,11 @@ RemoveN(int N, DLList *list) {
     int key;
     while (N--) {
         list->Remove(&key);
-        printf("Remove an item which key is %d\n", key);
+        if (key) {
+            printf("Remove an item which key is %d\n", key);
+        } else {
+            printf("List is empty!\n");
+        }
     }
 }
 
