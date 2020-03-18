@@ -222,6 +222,8 @@ void DLList::SortedInsert(void *item, int sortKey)
             e->prev->next = element;
             element->prev = e->prev;
             element->next = e;
+            if (err_type == 9)
+                currentThread->Yield();
             e->prev = element;
         }
     }
