@@ -199,6 +199,8 @@ void DLList::SortedInsert(void *item, int sortKey)
             element->next = first; // put it before first
             element->prev = NULL;
             first->prev = element;
+            if (err_type == 6)
+                currentThread->Yield();
             first = element;
         }
         else if (sortKey >= last->key)
@@ -206,6 +208,8 @@ void DLList::SortedInsert(void *item, int sortKey)
             element->next = NULL; // put it after last
             element->prev = last;
             last->next = element;
+            if (err_type == 7)
+                currentThread->Yield();
             last = element;
         }
         else
@@ -240,4 +244,19 @@ DLList::SortedRemove(int sortKey)
     if (element && sortKey == element->key)
         return element->item;
     return NULL;
+}
+
+void *
+DLList::PrintList()
+{
+    if(IsEmpty())
+        return NULL;
+    DLLElement *element = first;
+    printf("-----------List-----------\n");
+    while(element)
+    {
+        printf("%d ",element->key);
+        element = element->next;
+    }
+    printf("\n--------------------------\n");
 }

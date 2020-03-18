@@ -1,12 +1,12 @@
-// threadtest.cc 
+// threadtest.cc
 //	Simple test case for the threads assignment.
 //
 //	Create two threads, and have them context switch
-//	back and forth between themselves by calling Thread::Yield, 
+//	back and forth between themselves by calling Thread::Yield,
 //	to illustratethe inner workings of the thread system.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -23,7 +23,7 @@ DLList *list;
 
 //----------------------------------------------------------------------
 // SimpleThread
-// 	Loop 5 times, yielding the CPU to another ready thread 
+// 	Loop 5 times, yielding the CPU to another ready thread
 //	each iteration.
 //
 //	"which" is simply a number identifying the thread, for debugging
@@ -34,7 +34,7 @@ void
 SimpleThread(int which)
 {
     int num;
-    
+
     for (num = 0; num < 5; num++) {
 	printf("*** thread %d looped %d times\n", which, num);
         currentThread->Yield();
@@ -94,7 +94,7 @@ ConcurrentError3(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError4
-// 	
+//
 //----------------------------------------------------------------------
 
 void
@@ -105,7 +105,7 @@ ConcurrentError4(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError5
-// 	
+//
 //----------------------------------------------------------------------
 
 void
@@ -121,14 +121,43 @@ ConcurrentError5(int which)
     RemoveN(1, list);
 }
 
-const int error_num = 5;    // total number of concurrent errors
+//----------------------------------------------------------------------
+// ConcurrentError6
+//
+//----------------------------------------------------------------------
+void
+ConcurrentError6(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+}
+
+//----------------------------------------------------------------------
+// ConcurrentError6
+//
+//----------------------------------------------------------------------
+void
+ConcurrentError7(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+}
+
+const int error_num = 7;    // total number of concurrent errors
 typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
-                                    ConcurrentError4, ConcurrentError5};
+                                    ConcurrentError4, ConcurrentError5, ConcurrentError6,
+                                    ConcurrentError7};
 
 //----------------------------------------------------------------------
 // ThreadTest1
-// 	Set up a ping-pong between two threads, by forking a thread 
+// 	Set up a ping-pong between two threads, by forking a thread
 //	to call SimpleThread, and then calling SimpleThread ourselves.
 //----------------------------------------------------------------------
 
@@ -145,7 +174,7 @@ ThreadTest1()
 
 //----------------------------------------------------------------------
 // ThreadTest2
-// 	
+//
 //----------------------------------------------------------------------
 
 void
@@ -161,7 +190,7 @@ ThreadTest2()
 
     list = new DLList(E);
     int i;
-    
+
     for (i = 1; i < T; i++) {
         Thread *t = new Thread("forked thread");
         t->Fork(ConcurrentErrors[E - 1], i);
