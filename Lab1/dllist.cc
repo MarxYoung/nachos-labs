@@ -217,6 +217,8 @@ void DLList::SortedInsert(void *item, int sortKey)
             DLLElement *e = first->next;
             while (element->key > e->key) // loop till e points to element
                 e = e->next;              // following the correct position
+            if (err_type == 8)
+                currentThread->Yield();
             e->prev->next = element;
             element->prev = e->prev;
             element->next = e;
