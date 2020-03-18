@@ -1,5 +1,5 @@
-// dllist.h 
-//	Data structures of doubly linked list.  
+// dllist.h
+//	Data structures of doubly linked list.
 //
 // Copyright (c) 2020 Marx Young. All rights reserved.
 
@@ -13,7 +13,7 @@ class DLLElement;
 class DLList {
 public:
   DLList(); // initialize the list
-  DLList(int err_type); 
+  DLList(int err_type);
   ~DLList(); // de-allocate the list
 
   void Prepend(void *item); // add to head of list (set key = min_key-1)
@@ -28,6 +28,7 @@ public:
   void SortedInsert(void *item, int sortKey);
   void *SortedRemove(int sortKey); // remove first item with key==sortKey
                                     // return NULL if no such item exists
+  void *PrintList();  //  print list
 
 private:
   DLLElement *first; // head of the list, NULL if empty
