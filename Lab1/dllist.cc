@@ -207,6 +207,8 @@ void DLList::SortedInsert(void *item, int sortKey)
         {                         // new key is the biggest of all
             element->next = NULL; // put it after last
             element->prev = last;
+            if (err_type == 10)
+                currentThread->Yield();
             last->next = element;
             if (err_type == 7)
                 currentThread->Yield();

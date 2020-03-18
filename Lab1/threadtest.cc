@@ -176,11 +176,27 @@ ConcurrentError9(int which)
     printf("*** thread %d\n", which);
     RemoveN(N, list);
 }
-const int error_num = 9;    // total number of concurrent errors
+
+//----------------------------------------------------------------------
+// ConcurrentError10
+//
+//----------------------------------------------------------------------
+void
+ConcurrentError10(int which)
+{
+    printf("*** thread %d\n", which);
+    GenerateN(N, list);
+    currentThread->Yield();
+    printf("*** thread %d\n", which);
+    RemoveN(N, list);
+}
+
+const int error_num = 10;    // total number of concurrent errors
 typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
                                     ConcurrentError4, ConcurrentError5, ConcurrentError6,
-                                    ConcurrentError7, ConcurrentError8, ConcurrentError9};
+                                    ConcurrentError7, ConcurrentError8, ConcurrentError9,
+                                    ConcurrentError10};
 
 //----------------------------------------------------------------------
 // ThreadTest1
