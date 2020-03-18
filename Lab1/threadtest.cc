@@ -123,7 +123,8 @@ ConcurrentError5(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError6
-//
+//   switch threads before setting first = element if item
+//   which inserted is the smallest
 //----------------------------------------------------------------------
 void
 ConcurrentError6(int which)
@@ -137,7 +138,9 @@ ConcurrentError6(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError7
-//
+//   switch threads before setting last = element if item
+//   which inserted is the biggest
+//---------------------------------
 //----------------------------------------------------------------------
 void
 ConcurrentError7(int which)
