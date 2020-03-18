@@ -246,11 +246,11 @@ DLList::SortedRemove(int sortKey)
     return NULL;
 }
 
-void *
+void
 DLList::PrintList()
 {
     if(IsEmpty())
-        return NULL;
+        return;
     DLLElement *element = first;
     printf("-----------List-----------\n");
     while(element)

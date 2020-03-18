@@ -28,7 +28,7 @@ public:
   void SortedInsert(void *item, int sortKey);
   void *SortedRemove(int sortKey); // remove first item with key==sortKey
                                     // return NULL if no such item exists
-  void *PrintList();  //  print list
+  void PrintList();  //  print list
 
 private:
   DLLElement *first; // head of the list, NULL if empty
