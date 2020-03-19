@@ -94,7 +94,7 @@ ConcurrentError3(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError4
-//
+//  switch threads after setting element to first
 //----------------------------------------------------------------------
 
 void
@@ -105,7 +105,7 @@ ConcurrentError4(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError5
-//
+//  switch threads after calling IsEmpty() in Remove()
 //----------------------------------------------------------------------
 
 void
@@ -123,8 +123,7 @@ ConcurrentError5(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError6
-//   switch threads before setting first = element if item
-//   which inserted is the smallest
+//   switch threads before setting first/last to element(in SortedInsert)
 //----------------------------------------------------------------------
 void
 ConcurrentError6(int which)
@@ -146,9 +145,7 @@ ConcurrentError6(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError7
-//   switch threads before setting last = element if item
-//   which inserted is the biggest
-//---------------------------------
+//   switch threads after finding the insertion position(in SortedInsert)
 //----------------------------------------------------------------------
 void
 ConcurrentError7(int which)
