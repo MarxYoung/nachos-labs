@@ -129,11 +129,19 @@ ConcurrentError5(int which)
 void
 ConcurrentError6(int which)
 {
+    int key[] = {5,4,3,8,9,10};
+    int i = 0;
+    while (++i < 4) {
+        printf("*** thread %d is going to insert an item with key: %d\n", 
+                                            which, key[(i - 1) * 2 + which]);
+        list->SortedInsert(NULL, key[(i - 1) * 2 + which]);
+        list->PrintList();
+        currentThread->Yield();
+    }
+    //printf("*** thread %d\n", which);
+    //currentThread->Yield();
     printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
+    RemoveN(3, list);
 }
 
 //----------------------------------------------------------------------
@@ -145,61 +153,25 @@ ConcurrentError6(int which)
 void
 ConcurrentError7(int which)
 {
+    int key[] = {1,100,70,60,50,40};
+    int i = 0;
+    while (++i < 4) {
+        printf("*** thread %d is going to insert an item with key: %d\n", 
+                                            which, key[(i - 1) * 2 + which]);
+        list->SortedInsert(NULL, key[(i - 1) * 2 + which]);
+        list->PrintList();
+        currentThread->Yield();
+    }
+    //currentThread->Yield();
     printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
+    RemoveN(3, list);
 }
 
-//----------------------------------------------------------------------
-// ConcurrentError8
-//
-//----------------------------------------------------------------------
-void
-ConcurrentError8(int which)
-{
-    printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
-}
-
-//----------------------------------------------------------------------
-// ConcurrentError9
-//
-//----------------------------------------------------------------------
-void
-ConcurrentError9(int which)
-{
-    printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
-}
-
-//----------------------------------------------------------------------
-// ConcurrentError10
-//
-//----------------------------------------------------------------------
-void
-ConcurrentError10(int which)
-{
-    printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
-}
-
-const int error_num = 10;    // total number of concurrent errors
+const int error_num = 7;    // total number of concurrent errors
 typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
                                     ConcurrentError4, ConcurrentError5, ConcurrentError6,
-                                    ConcurrentError7, ConcurrentError8, ConcurrentError9,
-                                    ConcurrentError10};
+                                    ConcurrentError7};
 
 //----------------------------------------------------------------------
 // ThreadTest1
@@ -232,6 +204,11 @@ ThreadTest2()
     if (E > error_num) {
         printf("No concurrent error specified.\n");
         return;
+    } else if (E == 6 || 7) {
+        printf("To better demonstrate the concurrency error, we use the "
+            "set key value here, and do not support customizing the "
+            "number of insert elements and threads.\n");
+        T = 2;  // to better demonstrate the concurrency error
     }
 
     list = new DLList(E);

@@ -207,10 +207,8 @@ void DLList::SortedInsert(void *item, int sortKey)
         {                         // new key is the biggest of all
             element->next = NULL; // put it after last
             element->prev = last;
-            if (err_type == 10)
-                currentThread->Yield();
             last->next = element;
-            if (err_type == 7)
+            if (err_type == 6)
                 currentThread->Yield();
             last = element;
         }
@@ -219,13 +217,11 @@ void DLList::SortedInsert(void *item, int sortKey)
             DLLElement *e = first->next;
             while (element->key > e->key) // loop till e points to element
                 e = e->next;              // following the correct position
-            if (err_type == 8)
+            if (err_type == 7)
                 currentThread->Yield();
             e->prev->next = element;
             element->prev = e->prev;
             element->next = e;
-            if (err_type == 9)
-                currentThread->Yield();
             e->prev = element;
         }
     }
