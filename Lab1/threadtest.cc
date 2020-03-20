@@ -215,7 +215,7 @@ ThreadTest2()
     if (E > error_num) {
         printf("No concurrent error specified.\n");
         return;
-    } else if (E == 6 || 7) {
+    } else if (E == 6 || E == 7) {
         printf("To better demonstrate the concurrency error, we use the "
             "set key value here, and do not support customizing the "
             "number of insert elements and threads.\n");
