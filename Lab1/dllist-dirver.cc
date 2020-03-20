@@ -20,7 +20,8 @@ GenerateN(int N, DLList *list) {
         int key = Random() % 2001 - 1000;   // here we limit the range
                                 // of random numbers to [ -1000, 1000 ]
                                 // just for the convenience of demonstration
-        list->SortedInsert(NULL, key);
+        int item = Random();
+        list->SortedInsert(&item, key);
         list->PrintList();
         printf("Insert an item which key is %d\n", key);
     }
@@ -35,10 +36,11 @@ GenerateN(int N, DLList *list) {
 void
 RemoveN(int N, DLList *list) {
     int key;
+    int *item_ptr;
     while (N--) {
-        list->Remove(&key);
+        item_ptr = (int *)list->Remove(&key);
         list->PrintList();
-        if (key) {
+        if (item_ptr) {
             printf("Remove an item which key is %d\n", key);
         } else {
             printf("List is empty!\n");

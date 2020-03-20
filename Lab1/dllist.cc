@@ -149,12 +149,8 @@ DLList::Append(void *value)
 void *
 DLList::Remove(int *keyPtr)
 {
-    if (IsEmpty()) {
-        keyPtr = NULL;
+    if (IsEmpty())
         return NULL;
-    }
-    if (err_type == 5)
-        currentThread->Yield();
 
     DLLElement *element = first;
     if (err_type == 4)
@@ -206,7 +202,7 @@ void DLList::SortedInsert(void *item, int sortKey)
             element->next = first; // put it before first
             element->prev = NULL;
             first->prev = element;
-            if (err_type == 6)
+            if (err_type == 5)
                 currentThread->Yield();
             first = element;
         }
@@ -215,7 +211,7 @@ void DLList::SortedInsert(void *item, int sortKey)
             element->next = NULL; // put it after last
             element->prev = last;
             last->next = element;
-            if (err_type == 6)
+            if (err_type == 5)
                 currentThread->Yield();
             last = element;
         }
@@ -224,7 +220,7 @@ void DLList::SortedInsert(void *item, int sortKey)
             DLLElement *e = first->next;
             while (element->key > e->key) // loop till e points to element
                 e = e->next;              // following the correct position
-            if (err_type == 7)
+            if (err_type == 6)
                 currentThread->Yield();
             e->prev->next = element;
             element->prev = e->prev;

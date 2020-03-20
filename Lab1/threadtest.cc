@@ -92,8 +92,9 @@ ConcurrentError3(int which)
     int key[] = {1,2};  // 2rd thread's item's key > 1st thread's item's key
                         // so that a segment fault will occur in
                         // "else if (sortKey >= last->key)"(DLList::SortedInsert)
+    int item[] = {11,22};
     printf("*** thread %d is going to insert an item with key: %d\n", which, key[which % 2]);
-    list->SortedInsert(NULL, key[which % 2]);
+    list->SortedInsert(&item[which % 2], key[which % 2]);
     printf("*** thread %d\n", which);
     RemoveN(1, list);
 }
@@ -113,39 +114,20 @@ ConcurrentError4(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError5
-//  switch threads after calling IsEmpty() in Remove()
-// Error phenomenon
-//  take out an item that does not exist
-//----------------------------------------------------------------------
-
-void
-ConcurrentError5(int which)
-{
-    printf("*** thread %d\n", which);
-    GenerateN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(N, list);
-    currentThread->Yield();
-    printf("*** thread %d\n", which);
-    RemoveN(1, list);
-}
-
-//----------------------------------------------------------------------
-// ConcurrentError6
 //  switch threads before setting first/last to element(in SortedInsert)
 // Error phenomenon
 //  list will lose some items
 //----------------------------------------------------------------------
 void
-ConcurrentError6(int which)
+ConcurrentError5(int which)
 {
     int key[] = {5,4,3,8,9,10};
+    int item[] = {11,22,33,44,55,66};
     int i = 0;
     while (++i < 4) {
         printf("*** thread %d is going to insert an item with key: %d\n", 
                                             which, key[(i - 1) * 2 + which]);
-        list->SortedInsert(NULL, key[(i - 1) * 2 + which]);
+        list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
         list->PrintList();
         currentThread->Yield();
     }
@@ -156,20 +138,21 @@ ConcurrentError6(int which)
 }
 
 //----------------------------------------------------------------------
-// ConcurrentError7
+// ConcurrentError6
 //  switch threads after finding the insertion position(in SortedInsert)
 // Error phenomenon
 //  some items are out of order in the list
 //----------------------------------------------------------------------
 void
-ConcurrentError7(int which)
+ConcurrentError6(int which)
 {
     int key[] = {1,100,70,60,50,40};
+    int item[] = {11,22,33,44,55,66};
     int i = 0;
     while (++i < 4) {
         printf("*** thread %d is going to insert an item with key: %d\n", 
                                             which, key[(i - 1) * 2 + which]);
-        list->SortedInsert(NULL, key[(i - 1) * 2 + which]);
+        list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
         list->PrintList();
         currentThread->Yield();
     }
@@ -178,11 +161,10 @@ ConcurrentError7(int which)
     RemoveN(3, list);
 }
 
-const int error_num = 7;    // total number of concurrent errors
+const int error_num = 6;    // total number of concurrent errors
 typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
-                                    ConcurrentError4, ConcurrentError5, ConcurrentError6,
-                                    ConcurrentError7};
+                                    ConcurrentError4, ConcurrentError5, ConcurrentError6};
 
 //----------------------------------------------------------------------
 // ThreadTest1
@@ -212,10 +194,10 @@ ThreadTest2()
     DEBUG('t', "Entering ThreadTest2");
 
     // problem with parameter E
-    if (E > error_num) {
+    if (E > error_num || E < 1) {
         printf("No concurrent error specified.\n");
         return;
-    } else if (E == 6 || E == 7) {
+    } else if (E == 5 || E == 6) {
         printf("To better demonstrate the concurrency error, we use the "
             "set key value here, and do not support customizing the "
             "number of insert elements and threads.\n");
