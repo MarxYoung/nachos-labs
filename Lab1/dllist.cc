@@ -147,8 +147,10 @@ void DLList::Append(void *value)
 void *
 DLList::Remove(int *keyPtr)
 {
-    if (IsEmpty())
+    if (IsEmpty()) {
+        keyPtr = NULL;
         return NULL;
+    }
     if (err_type == 5)
         currentThread->Yield();
 
