@@ -163,6 +163,9 @@ DLList::Remove(int *keyPtr)
         *keyPtr = element->key;
     void *item = element->item;
     first = first->next;
+    if (first == NULL) {
+        last = NULL;
+    }
 
     delete element; // deallocate list element -- no longer needed
     return item;
