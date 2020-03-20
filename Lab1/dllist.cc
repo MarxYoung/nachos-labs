@@ -89,7 +89,8 @@ DLList::~DLList()
 //	    "value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
-void DLList::Prepend(void *value)
+void 
+DLList::Prepend(void *value)
 {
     if (IsEmpty())
     { // list is empty, set key = 0
@@ -117,7 +118,8 @@ void DLList::Prepend(void *value)
 //	    "value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
-void DLList::Append(void *value)
+void 
+DLList::Append(void *value)
 {
     if (IsEmpty())
     { // list is empty, set key = 0
