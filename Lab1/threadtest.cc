@@ -45,6 +45,8 @@ SimpleThread(int which)
 //----------------------------------------------------------------------
 // ConcurrentError1
 // 	insert N items -- switch threads -- remove N items -- switch threads
+// Error phenomenon
+//  thread may take out items that do not belong to itself
 //----------------------------------------------------------------------
 
 void
@@ -62,6 +64,8 @@ ConcurrentError1(int which)
 // ConcurrentError2
 // 	switch threads before setting list->first when inserting an item
 //  into an empty list
+// Error phenomenon
+//  list will lose some items
 //----------------------------------------------------------------------
 
 void
@@ -78,6 +82,8 @@ ConcurrentError2(int which)
 // ConcurrentError3
 // 	switch threads after setting list->first when inserting an item
 //  into an empty list
+// Error phenomenon
+//  segment fault
 //----------------------------------------------------------------------
 
 void
@@ -95,6 +101,8 @@ ConcurrentError3(int which)
 //----------------------------------------------------------------------
 // ConcurrentError4
 //  switch threads after setting element to first
+// Error phenomenon
+//  memory access error
 //----------------------------------------------------------------------
 
 void
@@ -106,6 +114,8 @@ ConcurrentError4(int which)
 //----------------------------------------------------------------------
 // ConcurrentError5
 //  switch threads after calling IsEmpty() in Remove()
+// Error phenomenon
+//  take out an item that does not exist
 //----------------------------------------------------------------------
 
 void
@@ -123,7 +133,9 @@ ConcurrentError5(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError6
-//   switch threads before setting first/last to element(in SortedInsert)
+//  switch threads before setting first/last to element(in SortedInsert)
+// Error phenomenon
+//  list will lose some items
 //----------------------------------------------------------------------
 void
 ConcurrentError6(int which)
@@ -145,7 +157,9 @@ ConcurrentError6(int which)
 
 //----------------------------------------------------------------------
 // ConcurrentError7
-//   switch threads after finding the insertion position(in SortedInsert)
+//  switch threads after finding the insertion position(in SortedInsert)
+// Error phenomenon
+//  some items are out of order in the list
 //----------------------------------------------------------------------
 void
 ConcurrentError7(int which)
@@ -189,7 +203,7 @@ ThreadTest1()
 
 //----------------------------------------------------------------------
 // ThreadTest2
-//
+//  Demonstrate concurrency errors.
 //----------------------------------------------------------------------
 
 void
