@@ -95,6 +95,10 @@ main(int argc, char **argv)
       argCount = 1;
       switch (argv[0][1]) {
       case 'q':
+	  	if (argc < 2) {
+			printf("too few parameters\n");
+			break;
+		}
         testnum = atoi(argv[1]);
 		if (testnum == 2) {
 			if (argc < 5) {
