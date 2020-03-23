@@ -89,7 +89,7 @@ DLList::~DLList()
 //	    "value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
-void 
+void
 DLList::Prepend(void *value)
 {
     if (IsEmpty())
@@ -118,7 +118,7 @@ DLList::Prepend(void *value)
 //	    "value" is the pointer of the item to be put on the list.
 //----------------------------------------------------------------------
 
-void 
+void
 DLList::Append(void *value)
 {
     if (IsEmpty())
@@ -247,7 +247,13 @@ DLList::SortedRemove(int sortKey)
     while (element && sortKey > element->key)
         element = element->next;
     if (element && sortKey == element->key)
-        return element->item;
+    {
+        element->prev->next = element->next;
+        element->next->prev = element->prev;
+        void *item = element->item;
+        delete element;
+        return item;
+    }
     return NULL;
 }
 
