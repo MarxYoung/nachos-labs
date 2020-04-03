@@ -12,6 +12,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "dllist.h"
+#include "synch.h"
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -20,6 +21,9 @@ extern void RemoveN(int N, DLList *list);
 int testnum = 1;
 int T, N, E;
 DLList *list;
+Lock *lock;
+Condition *cond;
+
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -166,6 +170,16 @@ typedef void (*func) (int);
 func ConcurrentErrors[error_num] = {ConcurrentError1, ConcurrentError2, ConcurrentError3,
                                     ConcurrentError4, ConcurrentError5, ConcurrentError6};
 
+void
+SynThread(int which)
+{
+    printf("*** thread %d is to Wait\n", which);
+    lock->Acquire();
+    cond->Wait(lock);
+    lock->Release();
+    printf("*** thread %d is awakened\n", which);
+}
+
 //----------------------------------------------------------------------
 // ThreadTest1
 // 	Set up a ping-pong between two threads, by forking a thread
@@ -214,6 +228,38 @@ ThreadTest2()
     ConcurrentErrors[E - 1](0);
 }
 
+void ThreadTest3()
+{
+    DEBUG('t', "Entering ThreadTest2");
+
+    lock = new Lock("ThreadTest3");
+    cond = new Condition("ThreadTest3");
+    // verify that a Signal cannot affect a subsequent Wait
+    lock->Acquire();
+    cond->Signal(lock);
+    lock->Release();
+    printf("*** thread 0 Signal\n");
+
+    // these threads will wait for cond
+    for (int i = 1; i < 5; i++) {
+        Thread *t = new Thread("forked thread");
+        t->Fork(SynThread, i);
+        currentThread->Yield();
+    }
+
+    printf("*** thread 0 Signal\n");
+    lock->Acquire();
+    cond->Signal(lock);
+    lock->Release();
+
+    currentThread->Yield();
+
+    printf("*** thread 0 BroadCast\n");
+    lock->Acquire();
+    cond->Broadcast(lock);
+    lock->Release();
+}
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -231,6 +277,10 @@ ThreadTest(int t, int n, int e)
     N = n;
     E = e;
     ThreadTest2();
+    break;
+    // test Lock and Condition
+    case 3:
+    ThreadTest3();
     break;
     default:
 	printf("No test specified.\n");
