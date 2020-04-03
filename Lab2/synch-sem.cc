@@ -22,7 +22,7 @@
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
-#include "synch.h"
+#include "synch-sem.h"
 #include "system.h"
 
 //----------------------------------------------------------------------
@@ -100,13 +100,109 @@ Semaphore::V()
 // Dummy functions -- so we can compile our later assignments 
 // Note -- without a correct implementation of Condition::Wait(), 
 // the test case in the network assignment won't work!
-Lock::Lock(char* debugName) {}
-Lock::~Lock() {}
-void Lock::Acquire() {}
-void Lock::Release() {}
 
-Condition::Condition(char* debugName) { }
-Condition::~Condition() { }
-void Condition::Wait(Lock* conditionLock) { ASSERT(FALSE); }
-void Condition::Signal(Lock* conditionLock) { }
-void Condition::Broadcast(Lock* conditionLock) { }
+//----------------------------------------------------------------------
+// Lock::Lock
+// 	Initialize a Lock.
+//
+//	"debugName" is an arbitrary name, useful for debugging.
+//----------------------------------------------------------------------
+
+Lock::Lock(char* debugName) 
+{
+    name = debugName;
+    isBusy = false;
+    owner = NULL;
+    s = new Semaphore(debugName, 1);
+}
+
+//----------------------------------------------------------------------
+// Lock::Lock
+// 	De-allocate Lock, when no longer needed.
+//----------------------------------------------------------------------
+
+Lock::~Lock() 
+{
+    delete s;
+}
+
+//----------------------------------------------------------------------
+// Lock::isHeldByCurrentThread
+// true if the current thread holds this lock.  Useful for
+// checking in Release, and in Condition variable ops below.
+//----------------------------------------------------------------------
+
+bool Lock::isHeldByCurrentThread()
+{
+    if (owner == currentThread && isBusy)
+        return true;
+    else
+        return false;
+}
+
+//----------------------------------------------------------------------
+// Lock::Acquire
+// wait until the lock is FREE, then set it to BUSY
+//----------------------------------------------------------------------
+
+void Lock::Acquire() 
+{
+    s->P();
+    isBusy = true;
+    owner = currentThread;
+}
+
+//----------------------------------------------------------------------
+// Lock::Release
+// release the lock
+// if any threads is waiting the Lock and current thread is the
+// owner of the Lock ,then wake up the first thread
+//----------------------------------------------------------------------
+
+void Lock::Release() 
+{
+    ASSERT(isHeldByCurrentThread());    //ensure current thread
+                                        //is the owner of the Lock
+    s->V();
+    isBusy = false;
+    owner = NULL;
+}
+
+Condition::Condition(char* debugName) 
+{
+    name = debugName;
+    s = new Semaphore(debugName, 0);
+    waitNum = 0;
+}
+
+Condition::~Condition() 
+{
+    delete s;
+}
+
+void Condition::Wait(Lock* conditionLock) 
+{
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    waitNum++;
+    conditionLock->Release();
+    s->P();
+    conditionLock->Acquire();
+}
+
+void Condition::Signal(Lock* conditionLock) 
+{
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    if (waitNum) {
+        waitNum--;
+        s->V();
+    }
+}
+
+void Condition::Broadcast(Lock* conditionLock) 
+{
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    if (waitNum)
+        while (waitNum--) {
+            s->V();
+        }
+}
