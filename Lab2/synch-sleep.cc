@@ -173,9 +173,9 @@ void Lock::Release()
     if(thread != NULL)  //wake up a thread
     {
         scheduler->ReadyToRun(thread);
-        isBusy = false;
-        owner = NULL;
     }
+    isBusy = false;
+    owner = NULL;
 
     (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
