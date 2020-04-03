@@ -56,11 +56,17 @@ SimpleThread(int which)
 void
 ConcurrentError1(int which)
 {
+    lock->Acquire();
+    cond->Wait(lock);
+    lock->Release();
     printf("*** thread %d\n", which);
     GenerateN(N, list);
     currentThread->Yield();
     printf("*** thread %d\n", which);
     RemoveN(N, list);
+    lock->Acquire();
+    cond->Signal(lock);
+    lock->Release();
     currentThread->Yield();
 }
 
@@ -207,6 +213,9 @@ ThreadTest2()
 {
     DEBUG('t', "Entering ThreadTest2");
 
+    lock = new Lock("ThreadTest2");
+    cond = new Condition("ThreadTest2");
+
     // problem with parameter E
     if (E > error_num || E < 1) {
         printf("No concurrent error specified.\n");
@@ -221,11 +230,14 @@ ThreadTest2()
     list = new DLList(E);
     int i;
 
-    for (i = 1; i < T; i++) {
+    for (i = 0; i < T; i++) {
         Thread *t = new Thread("forked thread");
         t->Fork(ConcurrentErrors[E - 1], i);
+        currentThread->Yield();
     }
-    ConcurrentErrors[E - 1](0);
+    lock->Acquire();
+    cond->Signal(lock);
+    lock->Release();
 }
 
 void ThreadTest3()
