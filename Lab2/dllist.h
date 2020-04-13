@@ -7,6 +7,7 @@
 #define DLLIST_H
 
 #include "copyright.h"
+#include "synch.h"
 
 class DLLElement;
 
@@ -31,9 +32,11 @@ public:
   void PrintList();  //  print list
 
 private:
-  DLLElement *first; // head of the list, NULL if empty
-  DLLElement *last; // last element of the list, NULL if empty
-  int err_type;   // type of concurrent errors
+  DLLElement *first;     // head of the list, NULL if empty
+  DLLElement *last;      // last element of the list, NULL if empty
+  int err_type;          // type of concurrent errors
+  Lock *lock;            // enforce mutual exclusive access to the list
+  Condition *listEmpty;  // wait in Remove if the list is empty
 };
 
 #endif // DLLIST_H

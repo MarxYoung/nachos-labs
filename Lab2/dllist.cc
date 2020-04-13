@@ -59,12 +59,16 @@ DLList::DLList()
 {
     first = last = NULL;
     err_type = -1;
+    lock = new Lock("list lock");
+    listEmpty = new Condition("list empty cond");
 }
 
 DLList::DLList(int err_type)
 {
     first = last = NULL;
     this->err_type = err_type;
+    lock = new Lock("list lock");
+    listEmpty = new Condition("list empty cond");
 }
 
 //----------------------------------------------------------------------
@@ -77,6 +81,8 @@ DLList::~DLList()
 {
     while (!IsEmpty())
         Remove(NULL); // delete all the list elements
+    delete lock;
+    delete listEmpty;
 }
 
 //----------------------------------------------------------------------
@@ -92,6 +98,7 @@ DLList::~DLList()
 void
 DLList::Prepend(void *value)
 {
+    lock->Acquire();    //enforce mutual exclusive access to the list
     if (IsEmpty())
     { // list is empty, set key = 0
         DLLElement *element = new DLLElement(value, 0);
@@ -106,6 +113,7 @@ DLList::Prepend(void *value)
         first->prev = element;
         first = element;
     }
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -121,6 +129,7 @@ DLList::Prepend(void *value)
 void
 DLList::Append(void *value)
 {
+    lock->Acquire();    //enforce mutual exclusive access to the list
     if (IsEmpty())
     { // list is empty, set key = 0
         DLLElement *element = new DLLElement(value, 0);
@@ -135,6 +144,8 @@ DLList::Append(void *value)
         last->next = element;
         last = element;
     }
+    listEmpty->Signal(lock);    // wake up a waiter, if any
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -149,8 +160,9 @@ DLList::Append(void *value)
 void *
 DLList::Remove(int *keyPtr)
 {
-    if (IsEmpty())
-        return NULL;
+    lock->Acquire();    //enforce mutual exclusive access to the list
+    while (IsEmpty())
+        listEmpty->Wait(lock);
 
     DLLElement *element = first;
     if (err_type == 4)
@@ -158,12 +170,14 @@ DLList::Remove(int *keyPtr)
     if (keyPtr)
         *keyPtr = element->key;
     void *item = element->item;
+    ASSERT(item != NULL);
     first = first->next;
     if (first == NULL) {
         last = NULL;
     }
 
     delete element; // deallocate list element -- no longer needed
+    lock->Release();
     return item;
 }
 
@@ -186,6 +200,7 @@ void DLList::SortedInsert(void *item, int sortKey)
 {
     DLLElement *element = new DLLElement(item, sortKey);
 
+    lock->Acquire();    //enforce mutual exclusive access to the list
     if (IsEmpty())
     { // list is empty
         if (err_type == 2)
@@ -228,6 +243,7 @@ void DLList::SortedInsert(void *item, int sortKey)
             e->prev = element;
         }
     }
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -240,8 +256,9 @@ void DLList::SortedInsert(void *item, int sortKey)
 void *
 DLList::SortedRemove(int sortKey)
 {
-    if (IsEmpty())
-        return NULL;
+    lock->Acquire();    //enforce mutual exclusive access to the list
+    while (IsEmpty())
+        listEmpty->Wait(lock);
 
     DLLElement *element = first;
     while (element && sortKey > element->key)
@@ -251,9 +268,12 @@ DLList::SortedRemove(int sortKey)
         element->prev->next = element->next;
         element->next->prev = element->prev;
         void *item = element->item;
+        ASSERT(item != NULL);
         delete element;
+        lock->Release();
         return item;
     }
+    lock->Release();
     return NULL;
 }
 

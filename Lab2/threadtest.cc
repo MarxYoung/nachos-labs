@@ -56,9 +56,9 @@ SimpleThread(int which)
 void
 ConcurrentError1(int which)
 {
-    lock->Acquire();
-    cond->Wait(lock);
-    lock->Release();
+    lock->Acquire();    // Here we consider a situation that we want to
+    cond->Wait(lock);   // remove the items just inserted, so we nedd to 
+    lock->Release();    // enforce mutual exclusive in addtion to inside's
     printf("*** thread %d\n", which);
     GenerateN(N, list);
     currentThread->Yield();
@@ -81,8 +81,8 @@ ConcurrentError1(int which)
 void
 ConcurrentError2(int which)
 {
-    printf("*** thread %d\n", which);
-    GenerateN(N, list);
+    printf("*** thread %d\n", which);  // Suppose that the thread cooperates with others
+    GenerateN(N, list);    // No need to keep mutual exclusion until removing
     currentThread->Yield();
     printf("*** thread %d\n", which);
     RemoveN(N, list);
