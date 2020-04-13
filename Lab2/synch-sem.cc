@@ -163,46 +163,51 @@ void Lock::Release()
 {
     ASSERT(isHeldByCurrentThread());    //ensure current thread
                                         //is the owner of the Lock
-    s->V();
     isBusy = false;
     owner = NULL;
+    s->V();
 }
 
 Condition::Condition(char* debugName) 
 {
     name = debugName;
-    s = new Semaphore(debugName, 0);
-    waitNum = 0;
+    waitQueue = new List;
 }
 
 Condition::~Condition() 
 {
-    delete s;
+    delete waitQueue;
 }
 
 void Condition::Wait(Lock* conditionLock) 
 {
+    Semaphore *waiter;
+    
     ASSERT(conditionLock->isHeldByCurrentThread());
-    waitNum++;
+
+    waiter = new Semaphore("condition", 0);
+    waitQueue->Append((void *)waiter);
     conditionLock->Release();
-    s->P();
+    waiter->P();
     conditionLock->Acquire();
+    delete waiter;
 }
 
 void Condition::Signal(Lock* conditionLock) 
 {
+    Semaphore *waiter;
+    
     ASSERT(conditionLock->isHeldByCurrentThread());
-    if (waitNum) {
-        waitNum--;
-        s->V();
+    
+    if (!waitQueue->IsEmpty()) {
+        waiter = (Semaphore *)waitQueue->Remove();
+	    waiter->V();
     }
 }
 
 void Condition::Broadcast(Lock* conditionLock) 
 {
-    ASSERT(conditionLock->isHeldByCurrentThread());
-    if (waitNum)
-        while (waitNum--) {
-            s->V();
-        }
+    while (!waitQueue->IsEmpty()) {
+        Signal(conditionLock);
+    }
 }
