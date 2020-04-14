@@ -13,6 +13,8 @@
 #include "system.h"
 #include "dllist.h"
 #include "synch.h"
+#include "Table.h"
+#include "BoundedBuffer.h"
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -24,6 +26,7 @@ DLList *list;
 Lock *lock;
 Condition *cond;
 BoundedBuffer *buffer;
+Table *table;
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -272,7 +275,54 @@ void ThreadTest3()
     lock->Release();
 }
 
+//----------------------------------------------------------------------
+//TableActions
+//	
+//
+//----------------------------------------------------------------------
+void
+TableActions(int which)
+{
+    int indexArr[N];
+    //
+    for(int i =0; i < N; i++) {
+        void *obj = (void *)(Random()%100);
+        indexArr[i] = table->Alloc(obj);
+        printf("*** thread %d stores %d at [%d] ***\n", which, (int)obj, indexArr[i]);
+        currentThread->Yield();
+    }
+    //
+    for(int i =0; i < N; i++) {
+        printf("*** thread %d gets %d from [%d] ***\n", which, (int)table->Get(indexArr[i]), indexArr[i]);
+        currentThread->Yield();
+    }
+    //
+    for(int i =0; i < N; i++) {
+        table->Release(indexArr[i]);
+        printf("*** thread %d released [%d] ***\n", which, indexArr[i]);
+        currentThread->Yield();
+    }
+    printf("*** thread %d finished ***\n", which);
+}
 
+//----------------------------------------------------------------------
+//TableTest
+//	T = number of threads, N = number of obj for allocation each threads
+//
+//----------------------------------------------------------------------
+void
+TableTest()
+{
+    DEBUG('t', "Entering TableTest");
+
+    int maxTableSize = T * N;
+    table = new Table(maxTableSize);
+    for(int i = 0; i < T; i ++) {
+        Thread *t = new Thread("forked thread");
+        t->Fork(TableActions, i);
+        currentThread->Yield();
+    }
+}
 //----------------------------------------------------------------------
 //WriteBuffer
 //	Create an pointer named 'data' that point to an area with 
@@ -416,6 +466,12 @@ ThreadTest(int t, int n, int e)
     // test Lock and Condition
     case 3:
     ThreadTest3();
+    break;
+    case 4:
+    T = t;
+	N = n;
+	E = e;
+    TableTest();
     break;
     case 6:
 	T = t;
