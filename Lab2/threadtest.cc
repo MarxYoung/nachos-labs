@@ -23,7 +23,7 @@ int T, N, E;
 DLList *list;
 Lock *lock;
 Condition *cond;
-
+BoundedBuffer *buffer;
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -272,6 +272,129 @@ void ThreadTest3()
     lock->Release();
 }
 
+
+//----------------------------------------------------------------------
+//WriteBuffer
+//	Create an pointer named 'data' that point to an area with 
+//'num'  pieces of data and write this data  to the buffer.
+//----------------------------------------------------------------------
+
+void 
+WriteBuffer(int num)
+{   
+    printf("\nCurrent thread is write thread :%s\n",currentThread -> getName());
+    int data[num];
+    int i;
+    for(i = 0;i<num;i++)
+    {
+	*(data +i) = Random()%100;
+    }
+    printf("Write this data to buffer:");
+    for(i = 0;i < num-1;i++)
+              printf("%d ",*(data + i));
+    printf("%d\n",*(data + i));
+    buffer -> Write((void *)data,num);
+    buffer ->PrintBuffer();
+}    
+
+//----------------------------------------------------------------------
+//ReadBuffer
+//	Read 'num' bytes of data from buffer to the area at the 
+//beginning of   '* data'
+//----------------------------------------------------------------------
+
+void 
+ReadBuffer(int num)
+{
+    printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
+    buffer ->PrintBuffer();
+    int data[num + 1];
+    buffer -> Read((void *)data,num);
+    printf("\nRead this data from buffer:");
+    int i ;
+    for (i = 0;i<num-1;i++)
+	printf("%d ",*(data + i));
+    printf("%d\n",*(data + i));
+}
+
+
+//----------------------------------------------------------------------
+//BufferTest
+// 	Invoke a buffer test routine.In this test routine,we create
+//       some read thread and wtire thread to test whether current 
+//       buffer is thread-safe.
+//       Some Params:
+//	T:maxsize of boundedbuffer
+//             N:num of read threads(read from buffer)
+//	E:num of write threads(write to buffer)
+//	num1:num of reads
+//             num2:num of writes
+//----------------------------------------------------------------------
+void 
+BufferTest()
+{
+     int num1,num2,i,j;
+     DEBUG('t', "Entering BufferTest");
+     buffer = new BoundedBuffer(T);
+     printf("\nEnter read bytes:");
+     scanf("%d",&num1);
+     printf("\nEnter write bytes:");
+     scanf("%d",&num2);
+     printf("\n");
+//     for (i = 0; i < N; i++) {
+//        Thread *t = new Thread("Read  thread");
+//        t->Fork(ReadBuffer, num1);
+//    }
+//    for (j = 0; j < E; j++) {
+//        Thread *t = new Thread("Write  thread");
+//        t->Fork(WriteBuffer, num2);
+//    }
+    int k,count1 = 0,count2 = 0;
+    for(i = 0;i<N+E;i++)
+    //Use random number to decide create 
+    //a read thread or a write thread
+    {
+        char *str = new char [20];
+        k = Random()%2;
+        if(k == 1)
+        {
+	    if(count1<N)
+		{
+		sprintf(str,"read thread %d",count1);
+		Thread *t = new Thread(str);
+		t->Fork(ReadBuffer, num1);
+		count1++;
+		}
+                    else
+		{
+		sprintf(str,"write thread %d",count2);
+		Thread *t = new Thread(str) ;
+		t->Fork(WriteBuffer,num2);
+		count2++;
+		}
+        }
+        else
+        {
+	    if(count2<E)
+		{
+		sprintf(str,"write thread %d",count2);
+		Thread *t = new Thread(str) ;
+		t->Fork(WriteBuffer,num2);
+		count2++;
+		}
+	    else
+		{
+		sprintf(str,"read thread %d",count1);
+		Thread *t = new Thread(str);
+		t->Fork(ReadBuffer, num1);
+		count1++;
+		}
+        }
+    }
+}	
+
+
+
 //----------------------------------------------------------------------
 // ThreadTest
 // 	Invoke a test routine.
@@ -294,6 +417,12 @@ ThreadTest(int t, int n, int e)
     case 3:
     ThreadTest3();
     break;
+    case 6:
+	T = t;
+	N = n;
+	E = e;
+	BufferTest();
+	break;
     default:
 	printf("No test specified.\n");
 	break;
