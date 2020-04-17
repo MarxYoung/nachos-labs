@@ -35,7 +35,7 @@ class Table {
      // create a table to hold at most 'size' entries.
      Table(int size);
 
-     // De-allocate Table when no longer needed.
+     // de-allocate Table when no longer needed.
      ~Table();
    
      // allocate a table slot for 'object'.

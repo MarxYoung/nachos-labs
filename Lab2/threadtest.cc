@@ -277,8 +277,8 @@ void ThreadTest3()
 
 //----------------------------------------------------------------------
 //TableActions
-//	
-//
+//	Create a table according to parameter N.
+//  Store, get and release elements while switching threads.
 //----------------------------------------------------------------------
 void
 TableActions(int which)
@@ -307,8 +307,9 @@ TableActions(int which)
 
 //----------------------------------------------------------------------
 //TableTest
-//	T = number of threads, N = number of obj for allocation each threads
-//
+//	T = number of threads, N = number of obj for allocation each threads.
+//  Create a shared table with the size of T * N.
+//  Fork threads to invoke TableActions.
 //----------------------------------------------------------------------
 void
 TableTest()
