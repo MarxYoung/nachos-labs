@@ -37,9 +37,9 @@ BoundedBuffer::~BoundedBuffer()
 //	Determine whether the buffer is empty
 //----------------------------------------------------------------------
 bool BoundedBuffer::IsEmpty()
-         {
+{
 	return (count == 0);
-         }
+}
 
 
 //----------------------------------------------------------------------
@@ -47,9 +47,9 @@ bool BoundedBuffer::IsEmpty()
 //	Determine whether the buffer is full
 //----------------------------------------------------------------------
 bool BoundedBuffer::IsFull()
-         {
+{
 	return (count == maxsize);
-         }
+}
 
 
 //----------------------------------------------------------------------
@@ -59,21 +59,21 @@ bool BoundedBuffer::IsFull()
 //      with locks and condition variables.
 //      'out' is the location of the first character in the current buffer
 //----------------------------------------------------------------------
-void  BoundedBuffer::Read(void *data,int size)
+void  BoundedBuffer::Read(void *data, int size)
 {
     int i;
     int *s = (int *)data;
     lock -> Acquire();
-    for(i =0;i<size;i++)
-        {
-	while(IsEmpty())
-		ReadEmpty -> Wait(lock);
-	*(s + i) = *(buffer +out);
-	out = (out+1)%maxsize;
-	count--;
-	WriteFull -> Signal(lock);
-        }
-    *(s + i) = '\0'; 
+    for(i = 0; i < size; i++)
+    {
+        while(IsEmpty())
+            ReadEmpty -> Wait(lock);
+        *(s + i) = *(buffer + out);
+        out = (out + 1) % maxsize;
+        count--;
+        if (count == maxsize - 1)
+            WriteFull -> Signal(lock);
+    }
     lock -> Release();
 }
 
@@ -86,20 +86,21 @@ void  BoundedBuffer::Read(void *data,int size)
 //      with locks and condition variables
 //       'in' is the location of the last character in the current buffer
 //----------------------------------------------------------------------
-void BoundedBuffer::Write(void *data,int size)
+void BoundedBuffer::Write(void *data, int size)
 {
      int *s = (int *)data;
      int i;
      lock -> Acquire();
-     for(i=0;i<size;i++)
-        {
-	while(IsFull())
-		WriteFull -> Wait(lock);
-	*(buffer +in) = *(s + i);
-	in = (in+1)%maxsize;
-	count++;
-	ReadEmpty -> Signal(lock);
-        }
+     for(i = 0; i < size; i++)
+    {
+        while(IsFull())
+            WriteFull -> Wait(lock);
+        *(buffer + in) = *(s + i);
+        in = (in + 1) % maxsize;
+        count++;
+        if (count == 1)
+            ReadEmpty -> Signal(lock);
+    }
     lock -> Release();
 }
 
@@ -117,8 +118,8 @@ void BoundedBuffer::PrintBuffer()
     printf("\nCurrent buffer is :");
     while(num--)
     {
-	printf("%d ",*(buffer+i));
-	i = (i + 1)%maxsize;
+        printf("%d ", *(buffer+i));
+        i = (i + 1) % maxsize;
     }
     printf("\n");
 }
