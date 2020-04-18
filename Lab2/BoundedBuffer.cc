@@ -25,9 +25,10 @@ BoundedBuffer::BoundedBuffer(int max_size)
 //----------------------------------------------------------------------
 BoundedBuffer::~BoundedBuffer()
 {
-    WriteFull->~Condition();
-    ReadEmpty->~Condition();
-    in = out = 0;
+    delete buffer;
+    delete lock;
+    delete WriteFull;
+    delete ReadEmpty;
 }
 
 
