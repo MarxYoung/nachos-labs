@@ -463,7 +463,6 @@ ThreadTest(int t, int n, int e)
     case 4:
         T = t;
         N = n;
-        E = e;
         TableTest();
         break;
     case 6:
