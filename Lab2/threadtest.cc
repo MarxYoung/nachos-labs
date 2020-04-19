@@ -286,7 +286,7 @@ TableActions(int which)
     int indexArr[N];
     //
     for(int i =0; i < N; i++) {
-        void *obj = (void *)(Random()%100);
+        void *obj = (void *)(Random() % 100);
         indexArr[i] = table->Alloc(obj);
         printf("*** thread %d stores %d at [%d] ***\n", which, (int)obj, indexArr[i]);
         currentThread->Yield();
@@ -326,43 +326,43 @@ TableTest()
 }
 //----------------------------------------------------------------------
 //WriteBuffer
-//	Create an pointer named 'data' that point to an area with 
-//'num'  pieces of data and write this data  to the buffer.
+//	Create an pointer named 'data' that points to an area with 
+//'num' pieces of data and write these data to the buffer.
 //----------------------------------------------------------------------
 
 void 
 WriteBuffer(int num)
 {   
-    printf("\nCurrent thread is write thread :%s\n",currentThread -> getName());
+    printf("\nCurrent thread is write thread :%s\n", currentThread -> getName());
     int data[num];
     int i;
-    for(i = 0;i<num;i++)
+    for(i = 0; i<num; i++)
     {
-	*(data +i) = Random()%100;
+	    *(data + i) = Random() % 100;
     }
-    printf("Write this data to buffer:");
+    printf("Write these data to buffer:");
     for(i = 0;i < num-1;i++)
-              printf("%d ",*(data + i));
+        printf("%d ",*(data + i));
     printf("%d\n",*(data + i));
-    buffer -> Write((void *)data,num);
-    buffer ->PrintBuffer();
+    buffer->Write((void *)data,num);
+    buffer->PrintBuffer();
 }    
 
 //----------------------------------------------------------------------
 //ReadBuffer
 //	Read 'num' bytes of data from buffer to the area at the 
-//beginning of   '* data'
+//beginning of '* data'
 //----------------------------------------------------------------------
 
 void 
 ReadBuffer(int num)
 {
     printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
-    buffer ->PrintBuffer();
+    buffer->PrintBuffer();
     int data[num + 1];
     buffer -> Read((void *)data,num);
-    printf("\nRead this data from buffer:");
-    int i ;
+    printf("\nRead these data from buffer:");
+    int i;
     for (i = 0;i<num-1;i++)
 	printf("%d ",*(data + i));
     printf("%d\n",*(data + i));
@@ -376,70 +376,62 @@ ReadBuffer(int num)
 //       buffer is thread-safe.
 //       Some Params:
 //	T:maxsize of boundedbuffer
-//             N:num of read threads(read from buffer)
+//  N:num of read threads(read from buffer)
 //	E:num of write threads(write to buffer)
-//	num1:num of reads
-//             num2:num of writes
+//	num1:num of read bytes
+//  num2:num of write bytes
 //----------------------------------------------------------------------
 void 
 BufferTest()
 {
-     int num1,num2,i,j;
+     int num1, num2, i;
      DEBUG('t', "Entering BufferTest");
      buffer = new BoundedBuffer(T);
      printf("\nEnter read bytes:");
-     scanf("%d",&num1);
+     scanf("%d", &num1);
      printf("\nEnter write bytes:");
-     scanf("%d",&num2);
+     scanf("%d", &num2);
      printf("\n");
-//     for (i = 0; i < N; i++) {
-//        Thread *t = new Thread("Read  thread");
-//        t->Fork(ReadBuffer, num1);
-//    }
-//    for (j = 0; j < E; j++) {
-//        Thread *t = new Thread("Write  thread");
-//        t->Fork(WriteBuffer, num2);
-//    }
-    int k,count1 = 0,count2 = 0;
-    for(i = 0;i<N+E;i++)
+    int k, count1 = 0, count2 = 0;
     //Use random number to decide create 
     //a read thread or a write thread
+    for(i = 0; i < N + E; i++)
     {
-        char *str = new char [20];
-        k = Random()%2;
-        if(k == 1)
+        char *str = new char[20];
+        k = Random() % 2;
+        if (k == 1) 
         {
-	    if(count1<N)
-		{
-		sprintf(str,"read thread %d",count1);
-		Thread *t = new Thread(str);
-		t->Fork(ReadBuffer, num1);
-		count1++;
-		}
-                    else
-		{
-		sprintf(str,"write thread %d",count2);
-		Thread *t = new Thread(str) ;
-		t->Fork(WriteBuffer,num2);
-		count2++;
-		}
-        }
-        else
+            if (count1 < N) 
+            {
+                sprintf(str, "read thread %d", count1);
+                Thread * t = new Thread(str);
+                t -> Fork(ReadBuffer, num1);
+                count1++;
+            } 
+            else 
+            {
+                sprintf(str, "write thread %d", count2);
+                Thread * t = new Thread(str);
+                t -> Fork(WriteBuffer, num2);
+                count2++;
+            }
+        } 
+        else 
         {
-	    if(count2<E)
-		{
-		sprintf(str,"write thread %d",count2);
-		Thread *t = new Thread(str) ;
-		t->Fork(WriteBuffer,num2);
-		count2++;
-		}
-	    else
-		{
-		sprintf(str,"read thread %d",count1);
-		Thread *t = new Thread(str);
-		t->Fork(ReadBuffer, num1);
-		count1++;
-		}
+            if (count2 < E) 
+            {
+                sprintf(str, "write thread %d", count2);
+                Thread * t = new Thread(str);
+                t -> Fork(WriteBuffer, num2);
+                count2++;
+            } 
+            else 
+            {
+                sprintf(str, "read thread %d", count1);
+                Thread * t = new Thread(str);
+                t -> Fork(ReadBuffer, num1);
+                count1++;
+            }
         }
     }
 }	
@@ -456,33 +448,33 @@ ThreadTest(int t, int n, int e)
 {
     switch (testnum) {
     case 1:
-	ThreadTest1();
-	break;
+        ThreadTest1();
+        break;
     case 2:
-    T = t;
-    N = n;
-    E = e;
-    ThreadTest2();
-    break;
+        T = t;
+        N = n;
+        E = e;
+        ThreadTest2();
+        break;
     // test Lock and Condition
     case 3:
-    ThreadTest3();
-    break;
+        ThreadTest3();
+        break;
     case 4:
-    T = t;
-	N = n;
-	E = e;
-    TableTest();
-    break;
+        T = t;
+        N = n;
+        E = e;
+        TableTest();
+        break;
     case 6:
-	T = t;
-	N = n;
-	E = e;
-	BufferTest();
-	break;
+        T = t;
+        N = n;
+        E = e;
+        BufferTest();
+        break;
     default:
-	printf("No test specified.\n");
-	break;
+        printf("No test specified.\n");
+        break;
     }
 }
 
