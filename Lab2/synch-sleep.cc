@@ -107,6 +107,7 @@ Semaphore::V()
 //
 //	"debugName" is an arbitrary name, useful for debugging.
 //----------------------------------------------------------------------
+
 Lock::Lock(char* debugName)
 {
     name = debugName;
@@ -119,6 +120,7 @@ Lock::Lock(char* debugName)
 // Lock::Lock
 // 	De-allocate Lock, when no longer needed.
 //----------------------------------------------------------------------
+
 Lock::~Lock()
 {
     delete queue;
@@ -129,6 +131,7 @@ Lock::~Lock()
 // true if the current thread holds this lock.  Useful for
 // checking in Release, and in Condition variable ops below.
 //----------------------------------------------------------------------
+
 bool Lock::isHeldByCurrentThread()
 {
     if (owner == currentThread && isBusy)
@@ -141,6 +144,7 @@ bool Lock::isHeldByCurrentThread()
 // Lock::Acquire
 // wait until the lock is FREE, then set it to BUSY
 //----------------------------------------------------------------------
+
 void Lock::Acquire()
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
@@ -162,6 +166,7 @@ void Lock::Acquire()
 // if any threads is waiting the Lock and current thread is the
 // owner of the Lock ,then wake up the first thread
 //----------------------------------------------------------------------
+
 void Lock::Release()
 {
     Thread* thread;
@@ -183,8 +188,9 @@ void Lock::Release()
 //----------------------------------------------------------------------
 // Condition::Condition
 // 	Initialize a Condition
-////----------------------------------------------------------------------
 //	"debugName" is an arbitrary name, useful for debugging.
+//----------------------------------------------------------------------
+
 Condition::Condition(char* debugName)
 {
     name = debugName;
@@ -195,6 +201,7 @@ Condition::Condition(char* debugName)
 // Condition::Condition
 //  De-allocate Condition, when no longer needed.
 //----------------------------------------------------------------------
+
 Condition::~Condition()
 {
     delete queue;
@@ -205,6 +212,7 @@ Condition::~Condition()
 //  if thread is waiting condition variable, then release the Lock
 //  and reacquire the Lock
 //----------------------------------------------------------------------
+
 void Condition::Wait(Lock* conditionLock)
 {
     ASSERT(conditionLock->isHeldByCurrentThread());
@@ -222,6 +230,7 @@ void Condition::Wait(Lock* conditionLock)
 // Condition::Signal
 //  if queue is not empty, then wake up the next thread
 //----------------------------------------------------------------------
+
 void Condition::Signal(Lock* conditionLock)
 {
     Thread* thread;
@@ -239,6 +248,7 @@ void Condition::Signal(Lock* conditionLock)
 // Condition::Broadcast
 //  wake up all threads
 //----------------------------------------------------------------------
+
 void Condition::Broadcast(Lock* conditionLock)
 {
     Thread* thread;
