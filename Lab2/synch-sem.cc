@@ -168,16 +168,33 @@ void Lock::Release()
     s->V();
 }
 
+//----------------------------------------------------------------------
+// Condition::Condition
+// 	Initialize a Condition
+//	"debugName" is an arbitrary name, useful for debugging.
+//----------------------------------------------------------------------
+
 Condition::Condition(char* debugName) 
 {
     name = debugName;
     waitQueue = new List;
 }
 
+//----------------------------------------------------------------------
+// Condition::Condition
+//  De-allocate Condition, when no longer needed.
+//----------------------------------------------------------------------
+
 Condition::~Condition() 
 {
     delete waitQueue;
 }
+
+//----------------------------------------------------------------------
+// Condition::Wait
+//  if thread is waiting condition variable, then release the Lock
+//  and reacquire the Lock
+//----------------------------------------------------------------------
 
 void Condition::Wait(Lock* conditionLock) 
 {
@@ -193,6 +210,11 @@ void Condition::Wait(Lock* conditionLock)
     delete waiter;
 }
 
+//----------------------------------------------------------------------
+// Condition::Signal
+//  if queue is not empty, then wake up the next thread
+//----------------------------------------------------------------------
+
 void Condition::Signal(Lock* conditionLock) 
 {
     Semaphore *waiter;
@@ -204,6 +226,11 @@ void Condition::Signal(Lock* conditionLock)
 	    waiter->V();
     }
 }
+
+//----------------------------------------------------------------------
+// Condition::Broadcast
+//  wake up all threads
+//----------------------------------------------------------------------
 
 void Condition::Broadcast(Lock* conditionLock) 
 {
