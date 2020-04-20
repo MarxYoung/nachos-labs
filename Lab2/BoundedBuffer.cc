@@ -61,18 +61,34 @@ bool BoundedBuffer::IsFull()
 //----------------------------------------------------------------------
 void  BoundedBuffer::Read(void *data, int size)
 {
-    int i;
+    int i,j;
+    int flag = 0;
     int *s = (int *)data;
     lock -> Acquire();
     for(i = 0; i < size; i++)
     {
-        while(IsEmpty())
-            ReadEmpty -> Wait(lock);
+        if ( IsEmpty() )
+            {
+                PrintBuffer();
+                printf("%s's data is:",currentThread -> getName());
+                for(j = 0; j < i ; j++)
+                    printf("%d ",*(s + j));
+                printf("\n\n");
+            }
+        while( IsEmpty() )
+            {
+                ReadEmpty -> Wait(lock);
+                flag = 1;
+            }
+        if ( flag == 1 )	
+            {
+                printf("Context switch to  %s \n", currentThread -> getName());
+                flag = 0;
+            }
         *(s + i) = *(buffer + out);
         out = (out + 1) % maxsize;
         count--;
-        if (count == maxsize - 1)
-            WriteFull -> Signal(lock);
+        WriteFull -> Signal(lock);
     }
     lock -> Release();
 }
@@ -90,16 +106,28 @@ void BoundedBuffer::Write(void *data, int size)
 {
      int *s = (int *)data;
      int i;
+     int flag = 0;
      lock -> Acquire();
      for(i = 0; i < size; i++)
     {
-        while(IsFull())
-            WriteFull -> Wait(lock);
+        if ( IsFull() )
+            {
+                PrintBuffer();
+            }
+        while( IsFull() )
+            {
+                WriteFull -> Wait(lock);
+                flag = 1;
+            }
+        if ( flag == 1 )	
+            {
+                printf("Context switch to  %s \n", currentThread -> getName());
+                flag = 0;
+            }
         *(buffer + in) = *(s + i);
         in = (in + 1) % maxsize;
         count++;
-        if (count == 1)
-            ReadEmpty -> Signal(lock);
+        ReadEmpty -> Signal(lock);
     }
     lock -> Release();
 }
@@ -115,13 +143,13 @@ void BoundedBuffer::PrintBuffer()
 {
     int i = out;
     int num =count;
-    printf("\nCurrent buffer is :");
+    printf("Current buffer is :");
     while(num--)
     {
         printf("%d ", *(buffer+i));
         i = (i + 1) % maxsize;
     }
-    printf("\n");
+    printf("\n\n");
 }
 
 

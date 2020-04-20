@@ -340,11 +340,12 @@ WriteBuffer(int num)
     {
 	    *(data + i) = Random() % 100;
     }
-    printf("Write these data to buffer:");
+    printf("%s will write these data to buffer:", currentThread -> getName());
     for(i = 0;i < num-1;i++)
         printf("%d ",*(data + i));
     printf("%d\n",*(data + i));
     buffer->Write((void *)data,num);
+    printf("%s finished,",currentThread -> getName());
     buffer->PrintBuffer();
 }    
 
@@ -358,14 +359,14 @@ void
 ReadBuffer(int num)
 {
     printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
-    buffer->PrintBuffer();
     int data[num + 1];
     buffer -> Read((void *)data,num);
-    printf("\nRead these data from buffer:");
+    printf("%s finished,read these data from buffer:",currentThread -> getName());
     int i;
     for (i = 0;i<num-1;i++)
 	printf("%d ",*(data + i));
     printf("%d\n",*(data + i));
+    buffer -> PrintBuffer();
 }
 
 
@@ -403,14 +404,14 @@ BufferTest()
         {
             if (count1 < N) 
             {
-                sprintf(str, "read thread %d", count1);
+                sprintf(str, "ReadThread %d", count1);
                 Thread * t = new Thread(str);
                 t -> Fork(ReadBuffer, num1);
                 count1++;
             } 
             else 
             {
-                sprintf(str, "write thread %d", count2);
+                sprintf(str, "WriteThread %d", count2);
                 Thread * t = new Thread(str);
                 t -> Fork(WriteBuffer, num2);
                 count2++;
@@ -420,14 +421,14 @@ BufferTest()
         {
             if (count2 < E) 
             {
-                sprintf(str, "write thread %d", count2);
+                sprintf(str, "WriteThread %d", count2);
                 Thread * t = new Thread(str);
                 t -> Fork(WriteBuffer, num2);
                 count2++;
             } 
             else 
             {
-                sprintf(str, "read thread %d", count1);
+                sprintf(str, "ReadThread %d", count1);
                 Thread * t = new Thread(str);
                 t -> Fork(ReadBuffer, num1);
                 count1++;
