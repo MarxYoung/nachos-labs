@@ -264,7 +264,23 @@ void Condition::Signal(Lock* conditionLock)
 
 void Condition::Broadcast(Lock* conditionLock)
 {
-    while (!queue->IsEmpty()) {
-        Signal(conditionLock);
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+
+    ASSERT(conditionLock->isHeldByCurrentThread());
+
+    Thread* thread;
+    ASSERT(conditionLock->isHeldByCurrentThread());
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
+
+    thread = (Thread *)queue->Remove();
+    while(thread != NULL)   //wake up all threads
+    {
+        scheduler->ReadyToRun(thread);
+        thread = (Thread *)queue->Remove();
     }
+
+    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }

@@ -247,6 +247,13 @@ void Condition::Signal(Lock* conditionLock)
 
 void Condition::Broadcast(Lock* conditionLock) 
 {
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+
+    ASSERT(conditionLock->isHeldByCurrentThread());
+
     while (!waitQueue->IsEmpty()) {
         Signal(conditionLock);
     }
