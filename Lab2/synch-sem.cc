@@ -147,6 +147,8 @@ bool Lock::isHeldByCurrentThread()
 
 void Lock::Acquire() 
 {
+    ASSERT(!isHeldByCurrentThread());   // prevent lock holder from 
+                                  // acquiring the lock a second time
     s->P();
     isBusy = true;
     owner = currentThread;
@@ -178,6 +180,7 @@ Condition::Condition(char* debugName)
 {
     name = debugName;
     waitQueue = new List;
+    mutex = NULL;
 }
 
 //----------------------------------------------------------------------
@@ -198,6 +201,11 @@ Condition::~Condition()
 
 void Condition::Wait(Lock* conditionLock) 
 {
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+
     Semaphore *waiter;
     
     ASSERT(conditionLock->isHeldByCurrentThread());
@@ -217,6 +225,11 @@ void Condition::Wait(Lock* conditionLock)
 
 void Condition::Signal(Lock* conditionLock) 
 {
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+    
     Semaphore *waiter;
     
     ASSERT(conditionLock->isHeldByCurrentThread());

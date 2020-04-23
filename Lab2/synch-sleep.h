@@ -135,7 +135,7 @@ class Condition {
   private:
     char* name;
     List *queue;
-
     // plus some other stuff you'll need to define
+    Lock *mutex;      // each condition variable is used with exactly one mutex
 };
 #endif // SYNCH_H

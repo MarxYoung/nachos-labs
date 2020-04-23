@@ -147,6 +147,9 @@ bool Lock::isHeldByCurrentThread()
 
 void Lock::Acquire()
 {
+    ASSERT(!isHeldByCurrentThread());   // prevent lock holder from 
+                                  // acquiring the lock a second time
+    
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
     while(isBusy) //if Lock is busy
@@ -215,6 +218,11 @@ Condition::~Condition()
 
 void Condition::Wait(Lock* conditionLock)
 {
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+
     ASSERT(conditionLock->isHeldByCurrentThread());
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
 
@@ -233,6 +241,11 @@ void Condition::Wait(Lock* conditionLock)
 
 void Condition::Signal(Lock* conditionLock)
 {
+    if (mutex == NULL)
+        mutex = conditionLock;
+    else
+        ASSERT(mutex == conditionLock);
+
     Thread* thread;
     ASSERT(conditionLock->isHeldByCurrentThread());
     IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
@@ -251,16 +264,7 @@ void Condition::Signal(Lock* conditionLock)
 
 void Condition::Broadcast(Lock* conditionLock)
 {
-    Thread* thread;
-    ASSERT(conditionLock->isHeldByCurrentThread());
-    IntStatus oldLevel = interrupt->SetLevel(IntOff);   // disable interrupts
-
-    thread = (Thread *)queue->Remove();
-    while(thread != NULL)   //wake up all threads
-    {
-        scheduler->ReadyToRun(thread);
-        thread = (Thread *)queue->Remove();
+    while (!queue->IsEmpty()) {
+        Signal(conditionLock);
     }
-
-    (void) interrupt->SetLevel(oldLevel);   // re-enable interrupts
 }
