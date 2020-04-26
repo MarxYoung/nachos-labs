@@ -113,6 +113,7 @@ DLList::Prepend(void *value)
         first->prev = element;
         first = element;
     }
+    listEmpty->Signal(lock);    // wake up a waiter, if any
     lock->Release();
 }
 
@@ -243,6 +244,7 @@ void DLList::SortedInsert(void *item, int sortKey)
             e->prev = element;
         }
     }
+    listEmpty->Signal(lock);    // wake up a waiter, if any
     lock->Release();
 }
 
