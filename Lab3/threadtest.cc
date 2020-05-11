@@ -15,6 +15,7 @@
 #include "synch.h"
 #include "Table.h"
 #include "BoundedBuffer.h"
+#include "EventBarrier.h"
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -27,6 +28,7 @@ Lock *lock;
 Condition *cond;
 BoundedBuffer *buffer;
 Table *table;
+EventBarrier *barrier;
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -437,6 +439,53 @@ BufferTest()
     }
 }	
 
+//----------------------------------------------------------------------
+// EventBarrierSignalThread
+//  Signal for specified EventBarrier.
+//----------------------------------------------------------------------
+
+void
+EventBarrierSignalThread(int which)
+{
+    printf("**Thread %d Signal.\n", which);
+    barrier->Signal();
+    printf("**Thread %d has passed the EventBarrier.\n", which);
+}
+
+//----------------------------------------------------------------------
+// EventBarrierWaitThread
+//  Wait on specified EventBarrier.
+//----------------------------------------------------------------------
+
+void
+EventBarrierWaitThread(int which)
+{
+    printf("**Thread %d Wait.\n", which);
+    barrier->Wait();
+    printf("**Thread %d responses.\n", which);
+    barrier->Complete();
+    printf("**Thread %d has passed the EventBarrier.\n", which);
+}
+
+//----------------------------------------------------------------------
+// EventBarrierTest
+//  A test routine for EventBarrier.
+//----------------------------------------------------------------------
+void 
+EventBarrierTest()
+{
+    barrier = new EventBarrier("EventBarrierTest");
+    printf("PART I:\n");
+    Thread *t = new Thread("signal thread");
+    t->Fork(EventBarrierSignalThread, 0);
+    currentThread->Yield();
+    for (int i = 1; i < 4; i++)
+    {
+        Thread *t = new Thread("wait thread");
+        t->Fork(EventBarrierWaitThread, i);
+        currentThread->Yield();
+    }
+}
 
 
 //----------------------------------------------------------------------
@@ -471,6 +520,9 @@ ThreadTest(int t, int n, int e)
         N = n;
         E = e;
         BufferTest();
+        break;
+    case 7:
+        EventBarrierTest();
         break;
     default:
         printf("No test specified.\n");
