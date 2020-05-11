@@ -40,6 +40,7 @@ EventBarrier::~EventBarrier()
 void
 EventBarrier::Wait()
 {
+    waitersCnt++;
     if (state)
         return;
     signalLock->Acquire();
