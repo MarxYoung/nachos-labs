@@ -16,6 +16,15 @@ private:
     /* data */
     int waitersCnt;     // count of threads that are waiting for
                 // the event or that have not yet responded to it.
+    bool state;         // true: signaled state
+                        // false: unsignaled state
+    Condition *signalCond;  // on which previous threads  
+                        // block to wait for Signal
+    Lock *signalLock;    // the mutex that signalCond is used with
+    // Lock *signalLock;    // ensure mutual exclusion on Signal
+    Condition *completeCond;    // on which previous threads block until all  
+                        // threads that wait for this event have responded
+    Lock *completeLock;     // the mutex that completeCond is used with
 public:
     EventBarrier(/* args */);   // initialize EventBarrier to "no one waiting"
     ~EventBarrier();            // deallocate the EventBarrier
