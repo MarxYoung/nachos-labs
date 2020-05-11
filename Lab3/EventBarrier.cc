@@ -85,7 +85,7 @@ EventBarrier::Complete()
     else 
     {
         completeLock->Acquire();
-        completeCond->Broacast(completeLock);
+        completeCond->Broadcast(completeLock);
         completeLock->Release();
     }
 }

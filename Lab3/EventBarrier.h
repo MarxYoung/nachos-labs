@@ -26,7 +26,7 @@ private:
                         // threads that wait for this event have responded
     Lock *completeLock;     // the mutex that completeCond is used with
 public:
-    EventBarrier(/* args */);   // initialize EventBarrier to "no one waiting"
+    EventBarrier(char *debugName);   // initialize EventBarrier to "no one waiting"
     ~EventBarrier();            // deallocate the EventBarrier
     void Wait();        // Wait until the event is signaled. 
                 // Return immediately if already in the signaled state.
