@@ -462,6 +462,9 @@ EventBarrierWaitThread(int which)
 {
     printf("**Thread %d Wait.\n", which);
     barrier->Wait();
+    lock->Acquire();
+    cond->Wait(lock);
+    lock->Release();
     printf("**Thread %d responses.\n", which);
     barrier->Complete();
     printf("**Thread %d has passed the EventBarrier.\n", which);
@@ -475,7 +478,12 @@ void
 EventBarrierTest()
 {
     barrier = new EventBarrier("EventBarrierTest");
-    printf("PART I:\n");
+    lock = new Lock("EventBarrierTest");
+    cond = new Condition("EventBarrierTest");
+    printf("PART I:At first, a thread will Signal. And then three thread"
+        "will Wait. Previous threads won't Complete until all threads arrive."
+        "This part is to show that a signal without waiter could be recorded"
+        "and the EventBarrier keeps in signaled state before all waiters response.\n");
     Thread *t = new Thread("signal thread");
     t->Fork(EventBarrierSignalThread, 0);
     currentThread->Yield();
@@ -485,6 +493,9 @@ EventBarrierTest()
         t->Fork(EventBarrierWaitThread, i);
         currentThread->Yield();
     }
+    lock->Acquire();
+    cond->Broadcast(lock);
+    lock->Release();
 }
 
 
