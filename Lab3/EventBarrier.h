@@ -21,10 +21,16 @@ private:
     Condition *signalCond;  // on which previous threads  
                         // block to wait for Signal
     Lock *signalLock;    // the mutex that signalCond is used with
-    // Lock *signalLock;    // ensure mutual exclusion on Signal
-    Condition *completeCond;    // on which previous threads block until all  
+    Lock *signalMutex;    // ensure mutual exclusion on Signal
+    //Condition *completeCond;    // on which previous threads block until all  
                         // threads that wait for this event have responded
-    Lock *completeLock;     // the mutex that completeCond is used with
+    //Lock *completeLock;     // the mutex that completeCond is used with
+    Condition *completeCondSignal;    // on which previous threads block until all  
+                        // threads that wait for this event have responded
+    Lock *completeLockSignal;     // the mutex that completeCond is used with
+    Condition *completeCondWait;    // on which previous threads block until all  
+                        // threads that wait for this event have responded
+    Lock *completeLockWait;     // the mutex that completeCond is used with
 public:
     EventBarrier(char *debugName);   // initialize EventBarrier to "no one waiting"
     ~EventBarrier();            // deallocate the EventBarrier

@@ -6,6 +6,9 @@
 
 #include "copyright.h"
 #include "EventBarrier.h"
+#include "system.h"
+
+#define OUTPUT_INFO
 
 //----------------------------------------------------------------------
 // EventBarrier::EventBarrier
@@ -17,8 +20,11 @@ EventBarrier::EventBarrier(char *debugName)
     state = false;
     signalLock = new Lock(debugName);
     signalCond = new Condition(debugName);
-    completeLock = new Lock(debugName);
-    completeCond = new Condition(debugName);
+    signalMutex = new Lock(debugName);
+    completeLockSignal = new Lock(debugName);
+    completeCondSignal = new Condition(debugName);
+    completeLockWait = new Lock(debugName);
+    completeCondWait = new Condition(debugName);
 }
 
 //----------------------------------------------------------------------
@@ -29,8 +35,10 @@ EventBarrier::~EventBarrier()
 {
     delete signalLock;
     delete signalCond;
-    delete completeLock;
-    delete completeCond;
+    delete completeLockSignal;
+    delete completeCondSignal;
+    delete completeLockWait;
+    delete completeCondWait;
 }
 
 //----------------------------------------------------------------------
@@ -40,6 +48,9 @@ EventBarrier::~EventBarrier()
 void
 EventBarrier::Wait()
 {
+    #ifdef OUTPUT_INFO
+        printf("**%s Wait\n", currentThread->getName());
+    #endif
     waitersCnt++;
     if (state)
         return;
@@ -55,18 +66,30 @@ EventBarrier::Wait()
 void
 EventBarrier::Signal()
 {
-    // signalLock->Acquire();
+    signalMutex->Acquire();
     signalLock->Acquire();
     state = true;       // set EventBarrier to signaled state
     signalCond->Broadcast(signalLock);
+    signalLock->Release();
 
-    completeLock->Acquire();
-    completeCond->Wait(completeLock);
-    completeLock->Release();
+    #ifdef OUTPUT_INFO
+        printf("**%s Signal\n", currentThread->getName());
+    #endif
+
+    completeLockSignal->Acquire();
+    completeCondSignal->Wait(completeLockSignal);
+    completeLockSignal->Release();
+
+    completeLockWait->Acquire();
+    completeCondWait->Broadcast(completeLockWait);
+    completeLockWait->Release();
 
     state = false;      // EventBarrier reverts to unsignaled state
-    signalLock->Release();
-    // signalLock->Release();
+    signalMutex->Release();
+
+    #ifdef OUTPUT_INFO
+        printf("**%s passes the EventBarrier\n", currentThread->getName());
+    #endif
 }
 
 //----------------------------------------------------------------------
@@ -76,18 +99,24 @@ EventBarrier::Signal()
 void
 EventBarrier::Complete()
 {
-    if (--waitersCnt != 0) 
+    #ifdef OUTPUT_INFO
+        printf("**%s Complete\n", currentThread->getName());
+    #endif
+
+    if (--waitersCnt == 0) 
     {
-        completeLock->Acquire();
-        completeCond->Wait(completeLock);
-        completeLock->Release();
+        completeLockSignal->Acquire();
+        completeCondSignal->Broadcast(completeLockSignal);
+        completeLockSignal->Release(); 
     }
-    else 
-    {
-        completeLock->Acquire();
-        completeCond->Broadcast(completeLock);
-        completeLock->Release();
-    }
+
+    completeLockWait->Acquire();
+    completeCondWait->Wait(completeLockWait);
+    completeLockWait->Release();
+
+    #ifdef OUTPUT_INFO
+        printf("**%s passes the EventBarrier\n", currentThread->getName());
+    #endif
 }
 
 //----------------------------------------------------------------------
