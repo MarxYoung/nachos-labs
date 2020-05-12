@@ -103,6 +103,8 @@ EventBarrier::Complete()
         printf("**%s Complete\n", currentThread->getName());
     #endif
 
+    completeLockWait->Acquire();
+
     if (--waitersCnt == 0) 
     {
         completeLockSignal->Acquire();
@@ -110,7 +112,6 @@ EventBarrier::Complete()
         completeLockSignal->Release(); 
     }
 
-    completeLockWait->Acquire();
     completeCondWait->Wait(completeLockWait);
     completeLockWait->Release();
 
