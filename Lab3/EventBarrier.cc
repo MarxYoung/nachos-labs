@@ -12,6 +12,8 @@
 
 //----------------------------------------------------------------------
 // EventBarrier::EventBarrier
+//	Initialize an EventBarrier with no waiters and unsignaled
+//  "debugName" is an arbitrary name, useful for debugging.
 //----------------------------------------------------------------------
 
 EventBarrier::EventBarrier(char *debugName)
@@ -29,6 +31,8 @@ EventBarrier::EventBarrier(char *debugName)
 
 //----------------------------------------------------------------------
 // EventBarrier::~EventBarrier
+//  De-allocate an EventBarrier, when no longer needed.  
+//  Assume there are no waiters or signaler waiting!
 //----------------------------------------------------------------------
 
 EventBarrier::~EventBarrier()
@@ -42,7 +46,9 @@ EventBarrier::~EventBarrier()
 }
 
 //----------------------------------------------------------------------
-// EventBarrier::EventBarrier
+// EventBarrier::Wait
+//  Wait until the event is signaled. Return immediately 
+//  if already in the signaled state.
 //----------------------------------------------------------------------
 
 void
@@ -60,7 +66,10 @@ EventBarrier::Wait()
 }
 
 //----------------------------------------------------------------------
-// EventBarrier::EventBarrier
+// EventBarrier::Signal
+//  Signal the event and block until all threads that wait for this 
+//  event have responded. The EventBarrier reverts to the unsignaled 
+//  state when Signal() returns.
 //----------------------------------------------------------------------
 
 void
@@ -93,7 +102,10 @@ EventBarrier::Signal()
 }
 
 //----------------------------------------------------------------------
-// EventBarrier::EventBarrier
+// EventBarrier::Complete
+//  Indicate that the calling thread has finished responding to a 
+//  signaled event, and block until all other threads that wait for 
+//  this event have also responded.
 //----------------------------------------------------------------------
 
 void
@@ -121,7 +133,9 @@ EventBarrier::Complete()
 }
 
 //----------------------------------------------------------------------
-// EventBarrier::EventBarrier
+// EventBarrier::Waiters
+//  Return a count of threads that are waiting for the event or that 
+//  have not yet responded to it.
 //----------------------------------------------------------------------
 
 int
