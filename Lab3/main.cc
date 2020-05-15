@@ -120,7 +120,7 @@ main(int argc, char **argv)
 			N = atoi(argv[3]);
 			argCount += 2;	
 		}
-		if (testnum == 7) {
+		if (testnum == 7 or testnum == 8) {
 			if (argc < 3) {
 				printf("too few parameters\n");
 				break;

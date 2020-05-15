@@ -546,6 +546,35 @@ EventBarrierTest(int part)
     }
 }
 
+//----------------------------------------------------------------------
+// AlarmActions
+//  Set a random time for a thread to sleep.
+//----------------------------------------------------------------------
+void
+AlarmActions(int which)
+{
+    int howLong =  Random() % 100 * 10 * (which + 1);
+    alarms -> Pause(howLong);
+    printf("*** thread%d finished AlarmTest ***\n", which);
+    // printf("*** thread%d woke up at %d (current ticks) ***\n", which, stats->totalTicks);
+}
+
+//----------------------------------------------------------------------
+// AlarmTest
+//  A test routine for Alarm. t stands for number of threads.
+//----------------------------------------------------------------------
+void 
+AlarmTest(int t)
+{
+    DEBUG('t', "Entering AlarmTest");
+    printf("Attention: time of thread going to sleep + duration set for sleep may not equal time of thread woke up due to multiple reasons.\n");
+    for(int i = 0; i < t; i ++) {
+        char *threadName = new char[10];
+		sprintf(threadName, "thread%d", i);
+		Thread *t = new Thread(threadName);
+		t->Fork(AlarmActions, i);
+    }
+}
 
 //----------------------------------------------------------------------
 // ThreadTest
@@ -582,6 +611,9 @@ ThreadTest(int t, int n, int e)
         break;
     case 7:
         EventBarrierTest(t);
+        break;
+    case 8:
+        AlarmTest(t);
         break;
     default:
         printf("No test specified.\n");
