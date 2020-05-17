@@ -54,13 +54,17 @@ EventBarrier::~EventBarrier()
 void
 EventBarrier::Wait()
 {
+    signalLock->Acquire();
     #ifdef OUTPUT_INFO
         printf("**%s Wait\n", currentThread->getName());
     #endif
     waitersCnt++;
     if (state)
+    {
+        signalLock->Release();
         return;
-    signalLock->Acquire();
+    }
+    
     signalCond->Wait(signalLock);
     signalLock->Release();
 }
@@ -91,14 +95,15 @@ EventBarrier::Signal()
 
     completeLockWait->Acquire();
     completeCondWait->Broadcast(completeLockWait);
-    completeLockWait->Release();
 
     state = false;      // EventBarrier reverts to unsignaled state
-    signalMutex->Release();
 
     #ifdef OUTPUT_INFO
         printf("**%s passes the EventBarrier\n", currentThread->getName());
     #endif
+
+    completeLockWait->Release();
+    signalMutex->Release();
 }
 
 //----------------------------------------------------------------------
@@ -111,10 +116,6 @@ EventBarrier::Signal()
 void
 EventBarrier::Complete()
 {
-    #ifdef OUTPUT_INFO
-        printf("**%s Complete\n", currentThread->getName());
-    #endif
-
     completeLockWait->Acquire();
 
     if (--waitersCnt == 0) 
@@ -124,12 +125,17 @@ EventBarrier::Complete()
         completeLockSignal->Release(); 
     }
 
+    #ifdef OUTPUT_INFO
+        printf("**%s Respond\n", currentThread->getName());
+    #endif
+
     completeCondWait->Wait(completeLockWait);
-    completeLockWait->Release();
 
     #ifdef OUTPUT_INFO
         printf("**%s passes the EventBarrier\n", currentThread->getName());
     #endif
+
+    completeLockWait->Release();
 }
 
 //----------------------------------------------------------------------
