@@ -111,7 +111,7 @@ main(int argc, char **argv)
 			RandomInit(unsigned(T * T + N * N));	// initialize pseudo-random
 			argCount += 3;
 		}
-		if (testnum == 4) {
+		if (testnum == 4 or testnum == 9) {
 			if (argc < 4) {
 				printf("too few parameters\n");
 				break;
@@ -120,7 +120,7 @@ main(int argc, char **argv)
 			N = atoi(argv[3]);
 			argCount += 2;
 		}
-		if (testnum == 7 or testnum == 8 or testnum == 9) {
+		if (testnum == 7 or testnum == 8 ) {
 			if (argc < 3) {
 				printf("too few parameters\n");
 				break;
