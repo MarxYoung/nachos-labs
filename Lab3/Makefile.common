@@ -49,7 +49,7 @@ THREAD_H =../threads/copyright.h\
 	../threads/BoundedBuffer.h\
 	../threads/Table.h\
 	../threads/EventBarrier.h\
-                ../threads/Alarm.h\
+        ../threads/Alarm.h\
 	../threads/Elevator.h\
 	../machine/interrupt.h\
 	../machine/sysdep.h\
@@ -70,8 +70,8 @@ THREAD_C =../threads/main.cc\
 	../threads/BoundedBuffer.cc\
 	../threads/Table.cc\
 	../threads/EventBarrier.cc\
-                ../threads/Alarm.cc\
-                ../threads/Elevator.cc\
+        ../threads/Alarm.cc\
+	../threads/Elevator.cc\
 	../machine/interrupt.cc\
 	../machine/sysdep.cc\
 	../machine/stats.cc\
