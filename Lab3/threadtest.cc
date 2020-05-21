@@ -585,6 +585,10 @@ AlarmTest(int t)
 // ElevatorThread
 //   Using this thread to control the operation of the elevator and
 // change the state of the elevator.
+//   When elevatorState is UP or DOWN, the elevator moves in only one
+// direction, finding the furthest request in the current direction each
+// time it gets the request, and satisfying all outstanding requests
+// on the way.
 //----------------------------------------------------------------------
 void ElevatorThread(int which)
 {
@@ -598,15 +602,15 @@ void ElevatorThread(int which)
         {
             e->ElevatorLock->Acquire();
             printf("Elevator now stop at %d floor.\n",e->currentfloor);
-            if(dstfloor == -1)
+            if(dstfloor == -1)//If no request,thread block itself until it is awakened
             {
                 e->HaveRequest->Wait(e->ElevatorLock);
             }
             e->ElevatorLock->Release();
             printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
-            dstfloor = e->getRequest();
+            dstfloor = e->getRequest();//Decide whether to change the status of the elevator by dst's value
             if(dstfloor > e->currentfloor)
-                 e->elevatorState = UP;
+                e->elevatorState = UP;
             else
                 e->elevatorState = DOWN;
         }
@@ -625,7 +629,7 @@ void ElevatorThread(int which)
                 printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
                 dstfloor = e->getRequest();
             }
-            if(!e->isUp[e->currentfloor])
+            if(!e->isUp[e->currentfloor])//if the request on dstFloor is not up,elevator turn around
             {
                 e->elevatorState = DOWN;
                 if(e->isDown[e->currentfloor] || e->isOut[e->currentfloor])
@@ -639,7 +643,7 @@ void ElevatorThread(int which)
                 else
                     e->VisitFloor(e->goDown());
             }
-            else
+            else//if the request on dstFloor is up
             {
                 e->OpenDoors();
                 e->CloseDoors();
@@ -647,7 +651,7 @@ void ElevatorThread(int which)
             }
             printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
         }
-        else
+        else//When elevatorstate is DOWN, it's the opposite of when it's UP.
         {
              while(e->currentfloor != dstfloor && dstfloor != -1 )
             {
@@ -688,11 +692,17 @@ void ElevatorThread(int which)
 }
 
 
-void riderTest(int id)
+
+//----------------------------------------------------------------------
+// riderTest
+//   Create a passenger thread and randomly generate the start floor and
+// destination floor to simulate the passenger request.
+//----------------------------------------------------------------------
+void riderTest(int id)//It's almost the same as the given example rider thread
 {
     int srcFloor = (Random() % 20) + 1;
     int dstFloor = (Random() % 20) + 1;
-    printf("**rider %d : from %d floor to %d floor\n", id , srcFloor , dstFloor);
+    printf("**Rider %d : from %d floor to %d floor\n", id , srcFloor , dstFloor);
     Elevator *e;
     if(srcFloor == dstFloor)
         return;
@@ -708,19 +718,25 @@ void riderTest(int id)
             e = building->AwaitDown(srcFloor);
         }
     }while(!e->Enter());
-//    printf("rider %d enter from %d floor,will go to %d floor.\n", id, srcFloor, dstFloor);
     e->RequestFloor(dstFloor);
-    printf("rider %d leave from %d floor\n",id, dstFloor);
+    printf("Rider %d leave from %d floor\n",id, dstFloor);
     e->Exit();
 }
 
+
+
+//----------------------------------------------------------------------
+// ElevatorTest
+//   This function creates an instance of Building and generates an
+// elevator control thread and several passenger threads as required.
+//----------------------------------------------------------------------
 void ElevatorTest(int floornum, int ridernum)
 {
     printf("---------Elevator Test--------\n");
     char **threadName;
     threadName = new char*[ridernum];
     Thread *t;
-    building = new Building("building",floornum,1);
+    building = new Building("building", floornum, 1);
     t = new Thread("thread 0 (Elevator thread)");
     t->Fork(ElevatorThread, 0);
     for (int i = 1; i <= ridernum; i++)
