@@ -6,50 +6,78 @@ existing interfaces.
 
 */
 
+#define STAY 0
+#define UP 1
+#define DOWN 2
+#define MAX 30
+#define TICK 100000
+
+
 class Elevator {
-   public:
+
+public:
+     friend class Building;
      Elevator(char *debugName, int numFloors, int myID);
      ~Elevator();
      char *getName() { return name; }
-   
+
      // elevator control interface: called by Elevator thread
-     OpenDoors();                //   signal exiters and enterers to action
-     CloseDoors();               //   after exiters are out and enterers are in
-     VisitFloor(int floor);      //   go to a particular floor
-   
+     void OpenDoors();                //   signal exiters and enterers to action
+     void CloseDoors();               //   after exiters are out and enterers are in
+     void VisitFloor(int floor);      //   go to a particular floor
+
      // elevator rider interface (part 1): called by rider threads.
-     Enter();                    //   get in
-     Exit();                     //   get out (iff destinationFloor)
-     RequestFloor(int floor);    //   tell the elevator our destinationFloor
-   
+     bool Enter();                    //   get in
+     void Exit();                     //   get out (iff destinationFloor)
+     void RequestFloor(int floor);    //   tell the elevator our destinationFloor
+
      // insert your methods here, if needed
 
-   private:
-     char *name;
-   
+     int getRequest();
+     int goUp();
+     int goDown();
+     EventBarrier *upRequest[MAX];
+     EventBarrier *downRequest[MAX];
+     EventBarrier *outRequest[MAX];
+     bool isUp[MAX];
+     bool isDown[MAX];
+     bool isOut[MAX];
      int currentfloor;           // floor where currently stopped
-     int occupancy;              // how many riders currently onboard
-   
+     int elevatorState;
+     int topFloor;
+     Lock *ElevatorLock;
+     Condition *HaveRequest;
+     Condition *ElevatorNotFull;
+     int occupancy;
+
+private:
+     char *name;
+
+                   // how many riders currently onboard
+     int elevatorID;
+     int capacity;
+
      // insert your data structures here, if needed
 };
-   
+
 class Building {
    public:
      Building(char *debugname, int numFloors, int numElevators);
      ~Building();
      char *getName() { return name; }
-   
-   				
+
+
      // elevator rider interface (part 2): called by rider threads
-     CallUp(int fromFloor);      //   signal an elevator we want to go up
-     CallDown(int fromFloor);    //   ... down
+     void CallUp(int fromFloor);      //   signal an elevator we want to go up
+     void CallDown(int fromFloor);    //   ... down
      Elevator *AwaitUp(int fromFloor); // wait for elevator arrival & going up
      Elevator *AwaitDown(int fromFloor); // ... down
-   
+     int topfloors;
+     Elevator *elevator;         // the elevators in the building (array)
+
    private:
      char *name;
-     Elevator *elevator;         // the elevators in the building (array)
-   
+
      // insert your data structures here, if needed
 };
 
@@ -58,10 +86,10 @@ class Building {
    //
    // void rider(int id, int srcFloor, int dstFloor) {
    //    Elevator *e;
-   //  
+   //
    //    if (srcFloor == dstFloor)
    //       return;
-   //  
+   //
    //    DEBUG('t',"Rider %d travelling from %d to %d\n",id,srcFloor,dstFloor);
    //    do {
    //       if (srcFloor < dstFloor) {
@@ -77,7 +105,7 @@ class Building {
    //       }
    //       DEBUG('t', "Rider %d Enter()\n", id);
    //    } while (!e->Enter()); // elevator might be full!
-   //  
+   //
    //    DEBUG('t', "Rider %d RequestFloor(%d)\n", id, dstFloor);
    //    e->RequestFloor(dstFloor); // doesn't return until arrival
    //    DEBUG('t', "Rider %d Exit()\n", id);

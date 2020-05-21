@@ -16,6 +16,7 @@
 #include "Table.h"
 #include "BoundedBuffer.h"
 #include "EventBarrier.h"
+#include "Elevator.h"
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -29,6 +30,7 @@ Condition *cond;
 BoundedBuffer *buffer;
 Table *table;
 EventBarrier *barrier;
+Building *building;
 
 //----------------------------------------------------------------------
 // SimpleThread
@@ -62,7 +64,7 @@ void
 ConcurrentError1(int which)
 {
     lock->Acquire();    // Here we consider a situation that we want to
-    cond->Wait(lock);   // remove the items just inserted, so we nedd to 
+    cond->Wait(lock);   // remove the items just inserted, so we nedd to
     lock->Release();    // enforce mutual exclusive in addtion to inside's
     printf("*** thread %d\n", which);
     GenerateN(N, list);
@@ -140,7 +142,7 @@ ConcurrentError5(int which)
     int item[] = {11,22,33,44,55,66};
     int i = 0;
     while (++i < 4) {
-        printf("*** thread %d is going to insert an item with key: %d\n", 
+        printf("*** thread %d is going to insert an item with key: %d\n",
                                             which, key[(i - 1) * 2 + which]);
         list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
         list->PrintList();
@@ -165,7 +167,7 @@ ConcurrentError6(int which)
     int item[] = {11,22,33,44,55,66};
     int i = 0;
     while (++i < 4) {
-        printf("*** thread %d is going to insert an item with key: %d\n", 
+        printf("*** thread %d is going to insert an item with key: %d\n",
                                             which, key[(i - 1) * 2 + which]);
         list->SortedInsert(&item[(i - 1) * 2 + which], key[(i - 1) * 2 + which]);
         list->PrintList();
@@ -328,13 +330,13 @@ TableTest()
 }
 //----------------------------------------------------------------------
 //WriteBuffer
-//	Create an pointer named 'data' that points to an area with 
+//	Create an pointer named 'data' that points to an area with
 //'num' pieces of data and write these data to the buffer.
 //----------------------------------------------------------------------
 
-void 
+void
 WriteBuffer(int num)
-{   
+{
     printf("\nCurrent thread is write thread :%s\n", currentThread -> getName());
     int data[num];
     int i;
@@ -349,15 +351,15 @@ WriteBuffer(int num)
     buffer->Write((void *)data,num);
     printf("%s finished,",currentThread -> getName());
     buffer->PrintBuffer();
-}    
+}
 
 //----------------------------------------------------------------------
 //ReadBuffer
-//	Read 'num' bytes of data from buffer to the area at the 
+//	Read 'num' bytes of data from buffer to the area at the
 //beginning of '* data'
 //----------------------------------------------------------------------
 
-void 
+void
 ReadBuffer(int num)
 {
     printf("\nCurrent thread is read thread :%s\n",currentThread -> getName());
@@ -375,7 +377,7 @@ ReadBuffer(int num)
 //----------------------------------------------------------------------
 //BufferTest
 // 	Invoke a buffer test routine.In this test routine,we create
-//       some read thread and wtire thread to test whether current 
+//       some read thread and wtire thread to test whether current
 //       buffer is thread-safe.
 //       Some Params:
 //	T:maxsize of boundedbuffer
@@ -384,7 +386,7 @@ ReadBuffer(int num)
 //	num1:num of read bytes
 //  num2:num of write bytes
 //----------------------------------------------------------------------
-void 
+void
 BufferTest()
 {
      int num1, num2, i;
@@ -396,39 +398,39 @@ BufferTest()
      scanf("%d", &num2);
      printf("\n");
     int k, count1 = 0, count2 = 0;
-    //Use random number to decide create 
+    //Use random number to decide create
     //a read thread or a write thread
     for(i = 0; i < N + E; i++)
     {
         char *str = new char[20];
         k = Random() % 2;
-        if (k == 1) 
+        if (k == 1)
         {
-            if (count1 < N) 
+            if (count1 < N)
             {
                 sprintf(str, "ReadThread %d", count1);
                 Thread * t = new Thread(str);
                 t -> Fork(ReadBuffer, num1);
                 count1++;
-            } 
-            else 
+            }
+            else
             {
                 sprintf(str, "WriteThread %d", count2);
                 Thread * t = new Thread(str);
                 t -> Fork(WriteBuffer, num2);
                 count2++;
             }
-        } 
-        else 
+        }
+        else
         {
-            if (count2 < E) 
+            if (count2 < E)
             {
                 sprintf(str, "WriteThread %d", count2);
                 Thread * t = new Thread(str);
                 t -> Fork(WriteBuffer, num2);
                 count2++;
-            } 
-            else 
+            }
+            else
             {
                 sprintf(str, "ReadThread %d", count1);
                 Thread * t = new Thread(str);
@@ -437,7 +439,7 @@ BufferTest()
             }
         }
     }
-}	
+}
 
 //----------------------------------------------------------------------
 // EventBarrierSignalThread
@@ -452,7 +454,7 @@ EventBarrierSignalThread(int which)
 
 //----------------------------------------------------------------------
 // EventBarrierWaitThread1
-//  Wait on specified EventBarrier and wait for other waiters 
+//  Wait on specified EventBarrier and wait for other waiters
 //  before Complete.
 //----------------------------------------------------------------------
 
@@ -468,7 +470,7 @@ EventBarrierWaitThread1(int which)
 
 //----------------------------------------------------------------------
 // EventBarrierWaitThread2
-//  Wait on specified EventBarrier and call Wait again immediately 
+//  Wait on specified EventBarrier and call Wait again immediately
 //  after returning from Complete.
 //----------------------------------------------------------------------
 
@@ -486,7 +488,7 @@ EventBarrierWaitThread2(int which)
 // EventBarrierTest
 //  A test routine for EventBarrier.
 //----------------------------------------------------------------------
-void 
+void
 EventBarrierTest(int part)
 {
     barrier = new EventBarrier("EventBarrierTest");
@@ -504,7 +506,7 @@ EventBarrierTest(int part)
             "(This is the setting in this test, not EventBarrier's feature.)"
             "This part is to show that a signal without waiter could be recorded "
             "and the EventBarrier keeps in signaled state before all waiters response.\n");
-        
+
         t = new Thread("thread 0 (signal thread)");
         t->Fork(EventBarrierSignalThread, 0);
         currentThread->Yield();
@@ -563,7 +565,7 @@ AlarmActions(int which)
 // AlarmTest
 //  A test routine for Alarm. t stands for number of threads.
 //----------------------------------------------------------------------
-void 
+void
 AlarmTest(int t)
 {
     DEBUG('t', "Entering AlarmTest");
@@ -573,6 +575,161 @@ AlarmTest(int t)
 		sprintf(threadName, "thread%d", i);
 		Thread *t = new Thread(threadName);
 		t->Fork(AlarmActions, i);
+    }
+}
+
+
+
+
+//----------------------------------------------------------------------
+// ElevatorThread
+//   Using this thread to control the operation of the elevator and
+// change the state of the elevator.
+//----------------------------------------------------------------------
+void ElevatorThread(int which)
+{
+    Elevator *e = building->elevator;
+    printf("Elevator start.\n");
+    bool Run = false;
+    while(1)
+    {
+        int dstfloor = e->getRequest();
+        if(e->elevatorState == STAY)
+        {
+            e->ElevatorLock->Acquire();
+            printf("Elevator now stop at %d floor.\n",e->currentfloor);
+            if(dstfloor == -1)
+            {
+                e->HaveRequest->Wait(e->ElevatorLock);
+            }
+            e->ElevatorLock->Release();
+            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+            dstfloor = e->getRequest();
+            if(dstfloor > e->currentfloor)
+                 e->elevatorState = UP;
+            else
+                e->elevatorState = DOWN;
+        }
+        else if(e->elevatorState == UP)
+        {
+            while(e->currentfloor != dstfloor && dstfloor != -1 )
+            {
+                Run = false;
+                if(e->isOut[e->currentfloor] || e->isUp[e->currentfloor])
+                {
+                    e->OpenDoors();
+                    e->CloseDoors();
+                }
+
+                e->VisitFloor(e->goUp());
+                printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+                dstfloor = e->getRequest();
+            }
+            if(!e->isUp[e->currentfloor])
+            {
+                e->elevatorState = DOWN;
+                if(e->isDown[e->currentfloor] || e->isOut[e->currentfloor])
+                {
+                    e->OpenDoors();
+                    e->CloseDoors();
+                }
+                dstfloor = e->getRequest();
+                if(dstfloor == -1)
+                    e->elevatorState = STAY;
+                else
+                    e->VisitFloor(e->goDown());
+            }
+            else
+            {
+                e->OpenDoors();
+                e->CloseDoors();
+                e->VisitFloor(e->goUp());
+            }
+            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+        }
+        else
+        {
+             while(e->currentfloor != dstfloor && dstfloor != -1 )
+            {
+                Run = false;
+                if(e->isOut[e->currentfloor] || e->isDown[e->currentfloor])
+                {
+                    e->OpenDoors();
+                    e->CloseDoors();
+                }
+
+                e->VisitFloor(e->goDown());
+                printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+                dstfloor = e->getRequest();
+            }
+            if(!e->isDown[e->currentfloor])
+            {
+                e->elevatorState = UP;
+                if(e->isUp[e->currentfloor] || e->isOut[e->currentfloor])
+                {
+                    e->OpenDoors();
+                    e->CloseDoors();
+                }
+                dstfloor = e->getRequest();
+                if(dstfloor == -1)
+                    e->elevatorState = STAY;
+                else
+                    e->VisitFloor(e->goUp());
+            }
+            else
+            {
+                e->OpenDoors();
+                e->CloseDoors();
+                e->VisitFloor(e->goDown());
+            }
+            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+        }
+    }
+}
+
+
+void riderTest(int id)
+{
+    int srcFloor = (Random() % 20) + 1;
+    int dstFloor = (Random() % 20) + 1;
+    printf("**rider %d : from %d floor to %d floor\n", id , srcFloor , dstFloor);
+    Elevator *e;
+    if(srcFloor == dstFloor)
+        return;
+    do{
+        if(srcFloor < dstFloor)
+        {
+            building->CallUp(srcFloor);
+            e = building->AwaitUp(srcFloor);
+        }
+        else
+        {
+            building->CallDown(srcFloor);
+            e = building->AwaitDown(srcFloor);
+        }
+    }while(!e->Enter());
+//    printf("rider %d enter from %d floor,will go to %d floor.\n", id, srcFloor, dstFloor);
+    e->RequestFloor(dstFloor);
+    printf("rider %d leave from %d floor\n",id, dstFloor);
+    e->Exit();
+}
+
+void ElevatorTest(int floornum, int ridernum)
+{
+    printf("---------Elevator Test--------\n");
+    char **threadName;
+    threadName = new char*[ridernum];
+    Thread *t;
+    building = new Building("building",floornum,1);
+    t = new Thread("thread 0 (Elevator thread)");
+    t->Fork(ElevatorThread, 0);
+    for (int i = 1; i <= ridernum; i++)
+    {
+        threadName[i - 1] = new char[30];
+        sprintf(threadName[i - 1], "thread %d (rider   thread)", i);
+        t = new Thread(threadName[i - 1]);
+        t->Fork(riderTest, i);
+        //currentThread->Yield();
     }
 }
 
@@ -614,6 +771,9 @@ ThreadTest(int t, int n, int e)
         break;
     case 8:
         AlarmTest(t);
+        break;
+    case 9:
+        ElevatorTest(t,n);
         break;
     default:
         printf("No test specified.\n");
