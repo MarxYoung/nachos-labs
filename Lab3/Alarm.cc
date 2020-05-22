@@ -1,5 +1,5 @@
 #include "system.h"
-
+#define OUTPUT
 //----------------------------------------------------------------------
 // Alarm::Alarm
 //	Initialize an alarm with a waiting list.
@@ -11,7 +11,7 @@ Alarm::Alarm()
 
 //----------------------------------------------------------------------
 // Alarm::Alarm
-//	De-allocate an alarm, when no longer needed. 
+//	De-allocate an alarm, when no longer needed.
 //----------------------------------------------------------------------
 Alarm::~Alarm()
 {
@@ -67,7 +67,9 @@ Alarm::Pause(int howLong)
         Thread *t = new Thread("CheckList thread");
         t->Fork(CheckHandler, (int)this);
     }
+    #ifdef OUTPUT
     printf("*** %s started sleeping for %d at %d (current ticks) ***\n", currentThread->getName(), howLong * TimerTicks, stats -> totalTicks);
+    #endif // OUTPUT
     currentThread->Sleep();
     (void)interrupt->SetLevel(oldLevel); // enable interrupts
 }
@@ -91,7 +93,9 @@ Alarm::Wakeup()
         // time's up
         if (waketime <= stats->totalTicks)
         {
+            #ifdef OUTPUT
             printf("*** %s woke up at %d (current ticks)***\n", thread->getName(), stats->totalTicks);
+            #endif
             scheduler->ReadyToRun(thread);                    // make the thread runnable
             num--;                                            // decrease num of threads in waiting list
             thread = (Thread *)list->SortedRemove(&waketime); // pick up another thread that should wake up
