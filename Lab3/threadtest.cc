@@ -730,13 +730,25 @@ void riderTest(int id)//It's almost the same as the given example rider thread
 //   This function creates an instance of Building and generates an
 // elevator control thread and several passenger threads as required.
 //----------------------------------------------------------------------
-void ElevatorTest(int floornum, int ridernum)
+void ElevatorTest(int floornum, int ridernum,int capacity)
 {
     printf("---------Elevator Test--------\n");
     char **threadName;
     threadName = new char*[ridernum];
     Thread *t;
     building = new Building("building", floornum, 1);
+    if(capacity != 0)
+        building->elevator->capacity = capacity;
+    else
+    {
+        printf("-----------------------\n");
+        printf("The capacity of elevator can not be 0!\n");
+        printf("-----------------------\n");
+        return;
+    }
+    printf("-----------------------\n");
+    printf("Elevator's Capacity: %d\n",building->elevator->capacity);
+    printf("-----------------------\n");
     t = new Thread("thread 0 (Elevator thread)");
     t->Fork(ElevatorThread, 0);
     for (int i = 1; i <= ridernum; i++)
@@ -789,7 +801,7 @@ ThreadTest(int t, int n, int e)
         AlarmTest(t);
         break;
     case 9:
-        ElevatorTest(t,n);
+        ElevatorTest(t,n,e);
         break;
     default:
         printf("No test specified.\n");

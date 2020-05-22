@@ -49,11 +49,11 @@ public:
     Condition *HaveRequest;
     Condition *ElevatorNotFull;
     int occupancy;//Record number of people that in elevator
+    int capacity;
 
 private:
     char *name;
     int elevatorID;
-    int capacity;
 };
 
 class Building {
