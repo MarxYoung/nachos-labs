@@ -601,13 +601,13 @@ void ElevatorThread(int which)
         if(e->elevatorState == STAY)
         {
             e->ElevatorLock->Acquire();
-            printf("Elevator now stop at %d floor.\n",e->currentfloor);
+            printf("** %2d Floor! [STOP]**\n",e->currentfloor);
             if(dstfloor == -1)//If no request,thread block itself until it is awakened
             {
                 e->HaveRequest->Wait(e->ElevatorLock);
             }
             e->ElevatorLock->Release();
-            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+            printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
             dstfloor = e->getRequest();//Decide whether to change the status of the elevator by dst's value
             if(dstfloor > e->currentfloor)
                 e->elevatorState = UP;
@@ -626,7 +626,7 @@ void ElevatorThread(int which)
                 }
 
                 e->VisitFloor(e->goUp());
-                printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+                printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
                 dstfloor = e->getRequest();
             }
             if(!e->isUp[e->currentfloor])//if the request on dstFloor is not up,elevator turn around
@@ -649,7 +649,7 @@ void ElevatorThread(int which)
                 e->CloseDoors();
                 e->VisitFloor(e->goUp());
             }
-            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+            printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
         }
         else//When elevatorstate is DOWN, it's the opposite of when it's UP.
         {
@@ -663,7 +663,7 @@ void ElevatorThread(int which)
                 }
 
                 e->VisitFloor(e->goDown());
-                printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+                printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
                 dstfloor = e->getRequest();
             }
             if(!e->isDown[e->currentfloor])
@@ -686,7 +686,7 @@ void ElevatorThread(int which)
                 e->CloseDoors();
                 e->VisitFloor(e->goDown());
             }
-            printf("**Now elevator at %d floor with %d riders\n",e->currentfloor, e->occupancy);
+            printf("** %2d Floor! %2d Riders**\n",e->currentfloor, e->occupancy);
         }
     }
 }
@@ -700,9 +700,9 @@ void ElevatorThread(int which)
 //----------------------------------------------------------------------
 void riderTest(int id)//It's almost the same as the given example rider thread
 {
-    int srcFloor = (Random() % 20) + 1;
-    int dstFloor = (Random() % 20) + 1;
-    printf("**Rider %d : from %d floor to %d floor\n", id , srcFloor , dstFloor);
+    int srcFloor = (Random() % (building->elevator->topFloor-1))+1;
+    int dstFloor = (Random() % (building->elevator->topFloor-1)) + 1;
+    printf("---REQUEST!---Rider %2d : from %d floor to %2d floor\n", id , srcFloor , dstFloor);
     Elevator *e;
     if(srcFloor == dstFloor)
         return;
@@ -718,8 +718,9 @@ void riderTest(int id)//It's almost the same as the given example rider thread
             e = building->AwaitDown(srcFloor);
         }
     }while(!e->Enter());
+    printf("---ENTER!---Rider %2d request to go to %2d floor\n",id, dstFloor);
     e->RequestFloor(dstFloor);
-    printf("Rider %d leave from %d floor\n",id, dstFloor);
+    printf("---LEAVE!---Rider %2d leave from %2d floor\n",id, dstFloor);
     e->Exit();
 }
 
@@ -737,18 +738,28 @@ void ElevatorTest(int floornum, int ridernum,int capacity)
     threadName = new char*[ridernum];
     Thread *t;
     building = new Building("building", floornum, 1);
-    if(capacity != 0)
+    if(capacity > 0)
         building->elevator->capacity = capacity;
     else
     {
-        printf("-----------------------\n");
-        printf("The capacity of elevator can not be 0!\n");
-        printf("-----------------------\n");
+        printf("---------------------------------------------\n");
+        printf("The capacity of elevator can not less than 0!\n");
+        printf("---------------------------------------------\n");
         return;
     }
-    printf("-----------------------\n");
-    printf("Elevator's Capacity: %d\n",building->elevator->capacity);
-    printf("-----------------------\n");
+    if(floornum > 1)
+        building->elevator->topFloor = floornum;
+    else
+    {
+        printf("---------------------------------------------\n");
+        printf("The floornum of elevator can not less than 0!\n");
+        printf("---------------------------------------------\n");
+        return;
+    }
+    printf("-------------------- ---\n");
+    printf("Elevator's Capacity: %2d\n",building->elevator->capacity);
+    printf("Elevator's Floornum: %2d\n",building->elevator->topFloor);
+    printf("---------------------- -\n");
     t = new Thread("thread 0 (Elevator thread)");
     t->Fork(ElevatorThread, 0);
     for (int i = 1; i <= ridernum; i++)

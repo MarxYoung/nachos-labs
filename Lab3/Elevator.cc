@@ -63,7 +63,7 @@ Elevator::~Elevator()
 void Elevator::OpenDoors()
 {
     alarms->Pause(TICK);
-    printf("--Now elevator open door at %d floor with %d riders\n", currentfloor, occupancy);
+    printf("** %2d Floor! %2d Riders [OPEN THE DOOR]**\n", currentfloor, occupancy);
     if(isOut[currentfloor])
         outRequest[currentfloor]->Signal();
     if(elevatorState == UP && isUp[currentfloor])
@@ -81,8 +81,8 @@ void Elevator::CloseDoors()
 {
     alarms->Pause(TICK);
     if( occupancy == 0 )
-        printf("**** The Elevator is empty ****\n");
-    printf("--Now elevator close door at %d floor with %d riders\n", currentfloor, occupancy);
+        printf("---EMPTY!---The Elevator is empty\n");
+    printf("** %2d Floor! %2d Riders [CLOSE THE DOOR]**\n", currentfloor, occupancy);
     if (elevatorState == UP)
         isUp[currentfloor] = false;
     else if (elevatorState == DOWN)
@@ -125,7 +125,7 @@ bool Elevator::Enter()
     }
     else
     {
-        printf("The Elevator is full. Please wait for next turn.\n");
+        printf("---FULL!---The Elevator is full. Please wait for next turn.\n");
         if(elevatorState == UP)
         {
             upRequest[currentfloor]->Complete();
