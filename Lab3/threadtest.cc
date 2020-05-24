@@ -739,18 +739,18 @@ void ElevatorTest(int floornum, int ridernum,int capacity)
         building->elevator->capacity = capacity;
     else
     {
-        printf("---------------------------------------------\n");
-        printf("The capacity of elevator can not less than 0!\n");
-        printf("---------------------------------------------\n");
+        printf("-----------------------------------------------\n");
+        printf("The capacity of elevator cannot be less than 0!\n");
+        printf("-----------------------------------------------\n");
         return;
     }
     if(floornum > 1)
         building->elevator->topFloor = floornum;
     else
     {
-        printf("---------------------------------------------\n");
-        printf("The floornum of elevator can not less than 0!\n");
-        printf("---------------------------------------------\n");
+        printf("-----------------------------------------------\n");
+        printf("The floornum of elevator cannot be less than 0!\n");
+        printf("-----------------------------------------------\n");
         return;
     }
     printf("-------------------- ---\n");
