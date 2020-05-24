@@ -601,7 +601,7 @@ void ElevatorThread(int which)
         {
             e->ElevatorLock->Acquire();
             printf("** %2d Floor! [STOP]**\n",e->currentfloor);
-            if(dstfloor == -1)//If no request,thread block itself until it is awakened
+            if(dstfloor == -1)//If no request,thread blocks itself until it is awakened
             {
                 e->HaveRequest->Wait(e->ElevatorLock);
             }
@@ -697,12 +697,12 @@ void ElevatorThread(int which)
 //----------------------------------------------------------------------
 void riderTest(int id)//It's almost the same as the given example rider thread
 {
-    int srcFloor = (Random() % (building->elevator->topFloor))+1;
+    int srcFloor = (Random() % (building->elevator->topFloor)) + 1;
     int dstFloor = (Random() % (building->elevator->topFloor)) + 1;
-    printf("---REQUEST!---Rider %2d : from %d floor to %2d floor\n", id , srcFloor , dstFloor);
     Elevator *e;
     if(srcFloor == dstFloor)
         return;
+    printf("---REQUEST!---Rider %2d : from %d floor to %2d floor\n", id , srcFloor , dstFloor);
     do{
         if(srcFloor < dstFloor)
         {
@@ -749,7 +749,7 @@ void ElevatorTest(int floornum, int ridernum,int capacity)
     else
     {
         printf("-----------------------------------------------\n");
-        printf("The floornum of elevator cannot be less than 0!\n");
+        printf("The floornum of elevator cannot be less than 1!\n");
         printf("-----------------------------------------------\n");
         return;
     }
