@@ -24,7 +24,6 @@ extern void RemoveN(int N, DLList *list);
 // testnum is set in main.cc
 int testnum = 1;
 int T, N, E;
-int floors;
 DLList *list;
 Lock *lock;
 Condition *cond;
