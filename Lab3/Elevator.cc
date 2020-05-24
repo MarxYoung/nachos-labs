@@ -119,10 +119,10 @@ void Elevator::VisitFloor(int floor)
 //----------------------------------------------------------------------
 bool Elevator::Enter()
 {
+    alarms->Pause(TICK);
     if(occupancy < capacity)
     {
         occupancy++;
-        alarms->Pause(TICK);
         if(elevatorState == UP)
         {
             upRequest[currentfloor]->Complete();
@@ -137,7 +137,6 @@ bool Elevator::Enter()
     }
     else
     {
-        printf("---FULL!---The Elevator is full. Please wait for next turn.\n");
         if(elevatorState == UP)
         {
             upRequest[currentfloor]->Complete();
@@ -148,6 +147,7 @@ bool Elevator::Enter()
             downRequest[currentfloor]->Complete();
             isDown[currentfloor] = false;
         }
+        printf("---FULL!---The Elevator is full. Please wait for next turn.\n");
         ElevatorLock->Acquire();
         ElevatorNotFull->Wait(ElevatorLock);
         ElevatorLock->Release();
