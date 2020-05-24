@@ -9,7 +9,6 @@ existing interfaces.
 #define STAY 0
 #define UP 1
 #define DOWN 2
-#define MAX 30
 #define TICK 100000  //Pause value
 
 
@@ -36,12 +35,12 @@ public:
     int getRequest();//Get a floor that makes the request
     int goUp();//The elevator goes up one floor.
     int goDown();//The elevator goes down one floor.
-    EventBarrier *upRequest[MAX];//Record the request waiting for the uplink elevator
-    EventBarrier *downRequest[MAX];//Record the request waiting for the downlink elevator
-    EventBarrier *outRequest[MAX];//Record the request waiting for the leave
-    bool isUp[MAX];//Used in conjunction with upRequest[MAX]
-    bool isDown[MAX];//Used in conjunction with downRequest[MAX]
-    bool isOut[MAX];//Used in conjunction with outRequest[MAX]
+    EventBarrier **upRequest;//Record the request waiting for the uplink elevator
+    EventBarrier **downRequest;//Record the request waiting for the downlink elevator
+    EventBarrier **outRequest;//Record the request waiting for the leave
+    bool *isUp;//Used in conjunction with upRequest[MAX]
+    bool *isDown;//Used in conjunction with downRequest[MAX]
+    bool *isOut;//Used in conjunction with outRequest[MAX]
     int currentfloor;// floor where currently stopped
     int elevatorState;// Record the current status of the elevator
     int topFloor;//Record the number of floors

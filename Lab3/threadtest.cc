@@ -24,6 +24,7 @@ extern void RemoveN(int N, DLList *list);
 // testnum is set in main.cc
 int testnum = 1;
 int T, N, E;
+int floors;
 DLList *list;
 Lock *lock;
 Condition *cond;
@@ -594,7 +595,6 @@ void ElevatorThread(int which)
 {
     Elevator *e = building->elevator;
     printf("Elevator start.\n");
-    bool Run = false;
     while(1)
     {
         int dstfloor = e->getRequest();
@@ -616,9 +616,8 @@ void ElevatorThread(int which)
         }
         else if(e->elevatorState == UP)
         {
-            while(e->currentfloor != dstfloor && dstfloor != -1 )
+            while(e->currentfloor != dstfloor)
             {
-                Run = false;
                 if(e->isOut[e->currentfloor] || e->isUp[e->currentfloor])
                 {
                     e->OpenDoors();
@@ -653,9 +652,8 @@ void ElevatorThread(int which)
         }
         else//When elevatorstate is DOWN, it's the opposite of when it's UP.
         {
-             while(e->currentfloor != dstfloor && dstfloor != -1 )
+             while(e->currentfloor != dstfloor)
             {
-                Run = false;
                 if(e->isOut[e->currentfloor] || e->isDown[e->currentfloor])
                 {
                     e->OpenDoors();
@@ -700,8 +698,8 @@ void ElevatorThread(int which)
 //----------------------------------------------------------------------
 void riderTest(int id)//It's almost the same as the given example rider thread
 {
-    int srcFloor = (Random() % (building->elevator->topFloor-1))+1;
-    int dstFloor = (Random() % (building->elevator->topFloor-1)) + 1;
+    int srcFloor = (Random() % (building->elevator->topFloor))+1;
+    int dstFloor = (Random() % (building->elevator->topFloor)) + 1;
     printf("---REQUEST!---Rider %2d : from %d floor to %2d floor\n", id , srcFloor , dstFloor);
     Elevator *e;
     if(srcFloor == dstFloor)

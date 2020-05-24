@@ -26,6 +26,12 @@ Elevator::Elevator(char *debugName, int numFloors, int myID)
     ElevatorLock = new Lock("ElevatorLock");
     HaveRequest = new Condition("HaveRequest");
     ElevatorNotFull = new Condition("ElevatorNotFull");
+    isUp = new bool[numFloors + 1];
+    isDown = new bool[numFloors + 1];
+    isOut = new bool[numFloors + 1];
+    upRequest = new EventBarrier*[numFloors + 1];
+    downRequest = new EventBarrier*[numFloors + 1];
+    outRequest = new EventBarrier*[numFloors + 1];
     for (i=1;i<=numFloors;i++)
     {
         sprintf( s1 , "upRequest-%d" , i );
@@ -49,6 +55,12 @@ Elevator::~Elevator()
         delete downRequest[i];
         delete outRequest[i];
     }
+    delete[] upRequest;
+    delete[] downRequest;
+    delete[] outRequest;
+    delete isUp;
+    delete isDown;
+    delete isOut;
     delete ElevatorLock;
     delete HaveRequest;
     delete ElevatorNotFull;
