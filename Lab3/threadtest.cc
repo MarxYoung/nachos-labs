@@ -30,6 +30,7 @@ Condition *cond;
 BoundedBuffer *buffer;
 Table *table;
 EventBarrier *barrier;
+int cnt = 0;
 Building *building;
 
 //----------------------------------------------------------------------
@@ -463,6 +464,7 @@ EventBarrierWaitThread1(int which)
 {
     barrier->Wait();
     lock->Acquire();
+    cnt++;
     cond->Wait(lock);   // wait for all waiters arrive and then response
     lock->Release();
     barrier->Complete();
@@ -517,6 +519,11 @@ EventBarrierTest(int part)
             sprintf(threadName[i - 1], "thread %d (wait   thread)", i);
             t = new Thread(threadName[i - 1]);
             t->Fork(EventBarrierWaitThread1, i);
+            currentThread->Yield();
+        }
+
+        while (cnt < 3)
+        {
             currentThread->Yield();
         }
 
