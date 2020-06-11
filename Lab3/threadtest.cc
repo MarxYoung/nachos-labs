@@ -17,7 +17,11 @@
 #include "BoundedBuffer.h"
 #include "EventBarrier.h"
 #include "Elevator.h"
+<<<<<<< HEAD
 #define STOP_TIME 1000000
+=======
+#define STOP_TIME 800000
+>>>>>>> 7a95b12f52005db4f4e1ab4f6c13ba450bd42216
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
