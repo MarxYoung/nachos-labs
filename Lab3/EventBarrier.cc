@@ -1,14 +1,14 @@
-// EventBarrier.cc 
+// EventBarrier.cc
 //
 // Copyright (c) 2020 MarxYoung.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
 #include "EventBarrier.h"
 #include "system.h"
 
-#define OUTPUT_INFO
+//#define OUTPUT_INFO
 
 //----------------------------------------------------------------------
 // EventBarrier::EventBarrier
@@ -31,7 +31,7 @@ EventBarrier::EventBarrier(char *debugName)
 
 //----------------------------------------------------------------------
 // EventBarrier::~EventBarrier
-//  De-allocate an EventBarrier, when no longer needed.  
+//  De-allocate an EventBarrier, when no longer needed.
 //  Assume there are no waiters or signaler waiting!
 //----------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ EventBarrier::~EventBarrier()
 
 //----------------------------------------------------------------------
 // EventBarrier::Wait
-//  Wait until the event is signaled. Return immediately 
+//  Wait until the event is signaled. Return immediately
 //  if already in the signaled state.
 //----------------------------------------------------------------------
 
@@ -64,15 +64,15 @@ EventBarrier::Wait()
         signalLock->Release();
         return;
     }
-    
+
     signalCond->Wait(signalLock);
     signalLock->Release();
 }
 
 //----------------------------------------------------------------------
 // EventBarrier::Signal
-//  Signal the event and block until all threads that wait for this 
-//  event have responded. The EventBarrier reverts to the unsignaled 
+//  Signal the event and block until all threads that wait for this
+//  event have responded. The EventBarrier reverts to the unsignaled
 //  state when Signal() returns.
 //----------------------------------------------------------------------
 
@@ -108,8 +108,8 @@ EventBarrier::Signal()
 
 //----------------------------------------------------------------------
 // EventBarrier::Complete
-//  Indicate that the calling thread has finished responding to a 
-//  signaled event, and block until all other threads that wait for 
+//  Indicate that the calling thread has finished responding to a
+//  signaled event, and block until all other threads that wait for
 //  this event have also responded.
 //----------------------------------------------------------------------
 
@@ -118,11 +118,11 @@ EventBarrier::Complete()
 {
     completeLockWait->Acquire();
 
-    if (--waitersCnt == 0) 
+    if (--waitersCnt == 0)
     {
         completeLockSignal->Acquire();
         completeCondSignal->Broadcast(completeLockSignal);
-        completeLockSignal->Release(); 
+        completeLockSignal->Release();
     }
 
     #ifdef OUTPUT_INFO
@@ -140,7 +140,7 @@ EventBarrier::Complete()
 
 //----------------------------------------------------------------------
 // EventBarrier::Waiters
-//  Return a count of threads that are waiting for the event or that 
+//  Return a count of threads that are waiting for the event or that
 //  have not yet responded to it.
 //----------------------------------------------------------------------
 

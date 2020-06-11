@@ -1,5 +1,5 @@
 #include "system.h"
-#define OUTPUT
+//#define OUTPUT
 //----------------------------------------------------------------------
 // Alarm::Alarm
 //	Initialize an alarm with a waiting list.

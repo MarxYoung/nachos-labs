@@ -3,7 +3,7 @@
 //
 //	Create two threads, and have them context switch
 //	back and forth between themselves by calling Thread::Yield,
-//	to illustratethe inner workings of the thread system.
+//	to illustrate the inner workings of the thread system.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
 // All rights reserved.  See copyright.h for copyright notice and limitation
@@ -17,6 +17,7 @@
 #include "BoundedBuffer.h"
 #include "EventBarrier.h"
 #include "Elevator.h"
+#define STOP_TIME 1000000
 
 extern void GenerateN(int N, DLList *list);
 extern void RemoveN(int N, DLList *list);
@@ -704,6 +705,8 @@ void ElevatorThread(int which)
 //----------------------------------------------------------------------
 void riderTest(int id)//It's almost the same as the given example rider thread
 {
+    while(true)
+    {
     int srcFloor = (Random() % (building->elevator->topFloor)) + 1;
     int dstFloor = (Random() % (building->elevator->topFloor)) + 1;
     Elevator *e;
@@ -726,6 +729,8 @@ void riderTest(int id)//It's almost the same as the given example rider thread
     e->RequestFloor(dstFloor);
     printf("---LEAVE!---Rider %2d leave from %2d floor\n",id, dstFloor);
     e->Exit();
+    alarms->Pause(STOP_TIME);
+    }
 }
 
 
@@ -823,4 +828,3 @@ ThreadTest(int t, int n, int e)
         break;
     }
 }
-
